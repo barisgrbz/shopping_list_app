@@ -49,8 +49,8 @@ lib/
 
 1. Depoyu klonlayın:
    ```bash
-   git clone https://github.com/kullaniciadi/alisveris_listesi.git
-   cd alisveris_listesi
+   git clone https://github.com/barisgrbz/shopping_list_app.git
+   cd shopping_list_app
    ```
 
 2. Bağımlılıkları yükleyin:
