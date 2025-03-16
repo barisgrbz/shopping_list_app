@@ -8,13 +8,12 @@ class ShoppingListItem extends StatelessWidget {
   final ShoppingItem item;
 
   const ShoppingListItem({
-    Key? key,
+    super.key,
     required this.item,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat.MMMd(); // Örn: Jan 21
     final timeAgo = _getTimeAgo(item.createdAt);
     
     return Dismissible(

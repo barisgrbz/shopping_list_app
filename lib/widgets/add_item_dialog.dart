@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/shopping_list_provider.dart';
 
 class AddItemDialog extends StatefulWidget {
-  const AddItemDialog({Key? key}) : super(key: key);
+  const AddItemDialog({super.key});
 
   @override
   State<AddItemDialog> createState() => _AddItemDialogState();
@@ -64,7 +64,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         shape: BoxShape.rectangle,
-        color: Theme.of(context).dialogBackgroundColor,
+        color: Theme.of(context).dialogTheme.backgroundColor ?? Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [
           BoxShadow(

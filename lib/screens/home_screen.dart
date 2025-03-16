@@ -5,7 +5,7 @@ import '../widgets/shopping_list_item.dart';
 import '../widgets/add_item_dialog.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
