@@ -36,20 +36,25 @@ class Constants {
     'Kişisel Bakım',
     'Atıştırmalık',
     'Ev Gereçleri',
+    'Bakliyat & Tahıllar',
+    'Dondurulmuş Gıdalar',
+    'Baharatlar & Soslar',
     'Diğer',
   ];
   
   // Kategori bazlı örnek ürünler
   static const Map<String, List<String>> categoryProducts = {
-    'Meyve & Sebze': ['Elma', 'Muz', 'Portakal', 'Domates', 'Salatalık', 'Patates', 'Soğan', 'Limon', 'Biber'],
-    'Et & Tavuk': ['Kıyma', 'Tavuk Göğsü', 'Kuşbaşı', 'Biftek', 'Balık', 'Sucuk', 'Sosis', 'Jambon'],
-    'Süt Ürünleri': ['Süt', 'Yoğurt', 'Peynir', 'Tereyağı', 'Kaymak', 'Ayran', 'Kefir', 'Kaşar'],
-    'İçecekler': ['Su', 'Meyve Suyu', 'Kola', 'Çay', 'Kahve', 'Gazoz', 'Maden Suyu', 'Ayran'],
-    'Temizlik': ['Deterjan', 'Yumuşatıcı', 'Bulaşık Deterjanı', 'Çamaşır Suyu', 'Temizlik Bezi', 'Sünger', 'Çöp Poşeti'],
-    'Kişisel Bakım': ['Şampuan', 'Sabun', 'Diş Macunu', 'Duş Jeli', 'Tıraş Köpüğü', 'Deodorant', 'Pamuk'],
-    'Atıştırmalık': ['Çikolata', 'Bisküvi', 'Cips', 'Kuruyemiş', 'Kraker', 'Gofret', 'Kek'],
-    'Ev Gereçleri': ['Pil', 'Ampul', 'Çivi', 'Tornavida', 'Mum', 'Kibrit', 'Bant'],
-    'Diğer': ['Not Defteri', 'Kalem', 'Balon', 'Hediye Paketi', 'Oyuncak', 'Kitap'],
+    'Meyve & Sebze': ['Elma', 'Muz', 'Portakal', 'Domates', 'Salatalık', 'Patates', 'Soğan', 'Limon', 'Biber', 'Marul', 'Brokoli', 'Havuç', 'Ispanak', 'Avokado', 'Çilek', 'Üzüm', 'Karpuz', 'Kavun', 'Ananas', 'Mango', 'Kivi', 'Nar', 'Erik', 'Şeftali', 'Kayısı', 'Kiraz', 'Mandalina', 'Greyfurt', 'Armut', 'Turp', 'Pırasa', 'Kereviz', 'Enginar', 'Kabak', 'Patlıcan', 'Fasulye', 'Bezelye', 'Mantar', 'Sarımsak', 'Zencefil', 'Zerdeçal'],
+    'Et & Tavuk': ['Kıyma', 'Tavuk Göğsü', 'Kuşbaşı', 'Biftek', 'Balık', 'Sucuk', 'Sosis', 'Jambon', 'Hindi', 'Kuzu Pirzola', 'Dana Antrikot', 'Tavuk Kanat', 'Tavuk But', 'Somon', 'Karides', 'Midye', 'Kalamar', 'Levrek', 'Çipura', 'Alabalık', 'Dana Rosto', 'Tavuk Nugget', 'Tavuk Şinitzel', 'Tavuk Ciğeri', 'Tavuk Yüreği'],
+    'Süt Ürünleri': ['Süt', 'Yoğurt', 'Peynir', 'Tereyağı', 'Kaymak', 'Ayran', 'Kefir', 'Kaşar', 'Labne', 'Krema', 'Mozzarella', 'Beyaz Peynir', 'Çedar', 'Feta', 'Ricotta', 'Mascarpone', 'Parmesan', 'Rokfor', 'Gouda', 'Brie', 'Camembert', 'Tulum Peyniri', 'Lor Peyniri', 'Süzme Yoğurt', 'Ayran', 'Kefir'],
+    'İçecekler': ['Su', 'Meyve Suyu', 'Kola', 'Çay', 'Kahve', 'Gazoz', 'Maden Suyu', 'Ayran', 'Enerji İçeceği', 'Smoothie', 'Limonata', 'Şalgam', 'Bira', 'Şarap', 'Votka', 'Viski', 'Rom', 'Cin', 'Likör', 'Sıcak Çikolata', 'Bitki Çayı', 'Yeşil Çay', 'Sütlü Kahve', 'Espresso', 'Cappuccino', 'Latte', 'Mocha'],
+    'Temizlik': ['Deterjan', 'Yumuşatıcı', 'Bulaşık Deterjanı', 'Çamaşır Suyu', 'Temizlik Bezi', 'Sünger', 'Çöp Poşeti', 'Cam Temizleyici', 'Toz Bezi', 'Tuvalet Kağıdı', 'Kağıt Havlu', 'Sabun', 'Dezenfektan', 'Yüzey Temizleyici', 'Klozet Temizleyici', 'Fırça', 'Mop', 'Süpürge', 'Toz Torbası', 'Eldiven', 'Temizlik Spreyi', 'Leke Çıkarıcı'],
+    'Kişisel Bakım': ['Şampuan', 'Sabun', 'Diş Macunu', 'Duş Jeli', 'Tıraş Köpüğü', 'Deodorant', 'Pamuk', 'Yüz Kremi', 'El Kremi', 'Saç Kremi', 'Parfüm', 'Tıraş Bıçağı', 'Diş Fırçası', 'Göz Kremi', 'Vücut Losyonu', 'Dudak Balmı', 'Tırnak Makası', 'Cımbız', 'Makyaj Temizleyici', 'Makyaj Pamuğu', 'Saç Spreyi', 'Saç Jölesi', 'Saç Köpüğü'],
+    'Atıştırmalık': ['Çikolata', 'Bisküvi', 'Cips', 'Kuruyemiş', 'Kraker', 'Gofret', 'Kek', 'Dondurma', 'Jelibon', 'Patlamış Mısır', 'Çubuk Kraker', 'Çikolatalı Bar', 'Enerji Barı', 'Kurabiye', 'Lokum', 'Pestil', 'Cezerye', 'Leblebi', 'Fındık', 'Fıstık', 'Badem', 'Ceviz', 'Kaju', 'Kuru Üzüm', 'Kuru Kayısı', 'Kuru İncir'],
+    'Ev Gereçleri': ['Pil', 'Ampul', 'Çivi', 'Tornavida', 'Mum', 'Kibrit', 'Bant', 'Çekiç', 'Tornavida Seti', 'Makas', 'Yapıştırıcı', 'Fırça', 'Süpürge', 'Ütü', 'Elektrik Süpürgesi', 'Çamaşır Sepeti', 'Ütü Masası', 'Çamaşır İpi', 'Askı', 'Çöp Kovası', 'Çöp Torbası', 'Temizlik Kovası', 'Temizlik Fırçası'],
+    'Bakliyat & Tahıllar': ['Pirinç', 'Bulgur', 'Mercimek', 'Nohut', 'Fasulye', 'Makarna', 'Yulaf', 'Kinoa', 'Arpa', 'Çavdar', 'Buğday', 'Kuskus', 'Kinoa', 'Karabuğday', 'Mısır Unu', 'İrmik', 'Tarhana', 'Erişte', 'Şehriye', 'Bulgur Pilavı', 'Kuskus', 'Kinoa'],
+    'Dondurulmuş Gıdalar': ['Dondurulmuş Pizza', 'Dondurulmuş Sebzeler', 'Dondurma', 'Dondurulmuş Köfte', 'Dondurulmuş Patates', 'Dondurulmuş Meyve', 'Dondurulmuş Börek', 'Dondurulmuş Balık', 'Dondurulmuş Tavuk', 'Dondurulmuş Deniz Ürünleri', 'Dondurulmuş Hamur', 'Dondurulmuş Tatlılar'],
+    'Baharatlar & Soslar': ['Tuz', 'Karabiber', 'Ketçap', 'Mayonez', 'Zeytinyağı', 'Sirke', 'Pul Biber', 'Kekik', 'Nane', 'Kimyon', 'Hardal', 'Acı Sos', 'Barbekü Sos', 'Soya Sosu', 'Balzamik Sirke', 'Zerdeçal', 'Zencefil', 'Tarçın', 'Vanilya', 'Safran', 'Karanfil', 'Anason', 'Sumak', 'Defne Yaprağı', 'Biberiye'],
   };
   
   // Kategori anahtar kelimeleri (otomatik kategori tespiti için)
