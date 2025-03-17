@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/shopping_item.dart';
 import '../providers/shopping_list_provider.dart';
 import '../utils/color_utils.dart';
+import '../utils/constants.dart';
 import 'package:intl/intl.dart';
 
 class ShoppingListItem extends StatelessWidget {
@@ -59,9 +60,28 @@ class ShoppingListItem extends StatelessWidget {
               color: item.isPurchased ? Colors.grey : null,
             ),
           ),
-          subtitle: Text(
-            'Eklenme: $timeAgo',
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.category_outlined,
+                    size: 12,
+                    color: Colors.grey.shade600,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    item.category,
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  ),
+                ],
+              ),
+              Text(
+                'Eklenme: $timeAgo',
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              ),
+            ],
           ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
@@ -112,37 +132,73 @@ class ShoppingListItem extends StatelessWidget {
 
   void _showEditItemDialog(BuildContext context, ShoppingItem item) {
     final TextEditingController controller = TextEditingController(text: item.name);
+    String selectedCategory = item.category;
     
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text('Ürünü Düzenle'),
-          content: TextField(
-            controller: controller,
-            decoration: const InputDecoration(
-              labelText: 'Ürün Adı',
-              border: OutlineInputBorder(),
-            ),
-            autofocus: true,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('İPTAL'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (controller.text.trim().isNotEmpty) {
-                  // Provider üzerinden ürünü güncelle
-                  Provider.of<ShoppingListProvider>(context, listen: false)
-                      .updateItem(item.id, controller.text.trim());
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text('KAYDET'),
-            ),
-          ],
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Ürünü Düzenle'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: controller,
+                    decoration: const InputDecoration(
+                      labelText: 'Ürün Adı',
+                      border: OutlineInputBorder(),
+                    ),
+                    autofocus: true,
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: selectedCategory,
+                    decoration: const InputDecoration(
+                      labelText: 'Kategori',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.category_outlined),
+                    ),
+                    items: Constants.defaultCategories.map((category) {
+                      return DropdownMenuItem<String>(
+                        value: category,
+                        child: Text(category),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          selectedCategory = value;
+                        });
+                      }
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('İPTAL'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (controller.text.trim().isNotEmpty) {
+                      // Provider üzerinden ürünü güncelle
+                      Provider.of<ShoppingListProvider>(context, listen: false)
+                          .updateItem(
+                            item.id, 
+                            controller.text.trim(),
+                            category: selectedCategory,
+                          );
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: const Text('KAYDET'),
+                ),
+              ],
+            );
+          }
         );
       },
     );

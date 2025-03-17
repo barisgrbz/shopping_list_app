@@ -20,6 +20,9 @@ class ShoppingItem {
 
   @HiveField(4)
   String listId;
+  
+  @HiveField(5)
+  String category;
 
   ShoppingItem({
     required this.id,
@@ -27,16 +30,22 @@ class ShoppingItem {
     required this.isPurchased,
     required this.createdAt,
     required this.listId,
+    this.category = Constants.defaultCategory,
   });
 
   // Factory constructor to create a new item with a default ID
-  factory ShoppingItem.create({required String name, required String listId}) {
+  factory ShoppingItem.create({
+    required String name, 
+    required String listId,
+    String category = Constants.defaultCategory,
+  }) {
     return ShoppingItem(
       id: Uuid().v4(),
       name: name,
       isPurchased: false,
       createdAt: DateTime.now(),
       listId: listId,
+      category: category,
     );
   }
 }

@@ -9,10 +9,18 @@ import '../widgets/edit_list_dialog.dart';
 import '../models/shopping_list.dart';
 import '../utils/icon_utils.dart';
 import '../utils/color_utils.dart';
+import '../utils/constants.dart';
 import '../screens/search_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String? _selectedCategory;
 
   @override
   Widget build(BuildContext context) {
@@ -279,8 +287,19 @@ class HomeScreen extends StatelessWidget {
     BuildContext context,
     ShoppingListProvider provider,
   ) {
-    final unpurchasedItems = provider.currentUnpurchasedItems;
-    final purchasedItems = provider.currentPurchasedItems;
+    var unpurchasedItems = provider.currentUnpurchasedItems;
+    var purchasedItems = provider.currentPurchasedItems;
+    
+    // Kategori filtresi uygulama
+    if (_selectedCategory != null && _selectedCategory != Constants.defaultCategory) {
+      unpurchasedItems = unpurchasedItems
+          .where((item) => item.category == _selectedCategory)
+          .toList();
+      purchasedItems = purchasedItems
+          .where((item) => item.category == _selectedCategory)
+          .toList();
+    }
+    
     final selectedList = provider.selectedList;
     final Color? listColorOrNull = selectedList?.color != null 
       ? ColorUtils.colorFromString(selectedList?.color) 
@@ -299,7 +318,9 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Alışveriş listeniz boş',
+              _selectedCategory != null 
+                  ? 'Bu kategoride ürün bulunamadı' 
+                  : 'Alışveriş listeniz boş',
               style: Theme.of(
                 context,
               ).textTheme.headlineSmall?.copyWith(color: Colors.grey.shade600),
@@ -309,133 +330,232 @@ class HomeScreen extends StatelessWidget {
               'Yeni ürünler eklemek için + butonuna dokunun',
               style: TextStyle(color: Colors.grey),
             ),
+            if (_selectedCategory != null) ...[
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _selectedCategory = null;
+                  });
+                },
+                icon: const Icon(Icons.filter_alt_off),
+                label: const Text('Filtreyi Kaldır'),
+              ),
+            ],
           ],
         ),
       );
     }
 
-    return ListView(
-      padding: const EdgeInsets.all(16.0),
+    return Column(
       children: [
-        if (unpurchasedItems.isNotEmpty) ...[
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: listColor,
-                  foregroundColor: ColorUtils.getContrastColor(listColor),
-                  radius: 14,
-                  child: const Icon(
-                    Icons.shopping_basket_outlined,
-                    size: 16,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Alınacaklar (${unpurchasedItems.length})',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+        // Kategori filtresi
+        Container(
+          margin: const EdgeInsets.all(16.0),
+          child: Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-          ),
-          const Divider(),
-          ...unpurchasedItems.map(
-            (item) => Padding(
-              padding: const EdgeInsets.only(bottom: 4.0),
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 500),
-                opacity: 1.0,
-                child: ShoppingListItem(item: item),
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-        ],
-
-        if (purchasedItems.isNotEmpty) ...[
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                CircleAvatar(
-                  backgroundColor: listColor.withAlpha((0.7 * 255).round()),
-                  foregroundColor: ColorUtils.getContrastColor(listColor),
-                  radius: 14,
-                  child: const Icon(
-                    Icons.check_circle_outline,
-                    size: 16,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Alınanlar (${purchasedItems.length})',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Spacer(),
-                TextButton.icon(
-                  icon: const Icon(Icons.delete_sweep, size: 16),
-                  label: const Text('Temizle'),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder:
-                          (context) => AlertDialog(
-                            title: const Text('Alınanları Temizle'),
-                            content: const Text(
-                              'Satın alınmış tüm ürünler listeden kaldırılacak. Onaylıyor musunuz?',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('İPTAL'),
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  provider.clearCompletedItems();
-                                  Navigator.pop(context);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        'Satın alınan ürünler silindi',
-                                      ),
-                                      duration: Duration(seconds: 2),
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  foregroundColor: Colors.white,
-                                  backgroundColor: Colors.red,
-                                ),
-                                child: const Text('TEMİZLE'),
-                              ),
-                            ],
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.category, size: 20),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Kategoriye Göre Filtrele',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const Spacer(),
+                      if (_selectedCategory != null)
+                        TextButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              _selectedCategory = null;
+                            });
+                          },
+                          icon: const Icon(Icons.clear, size: 18),
+                          label: const Text('Temizle'),
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            visualDensity: VisualDensity.compact,
                           ),
-                    );
-                  },
-                  style: TextButton.styleFrom(foregroundColor: Colors.red),
+                        ),
+                    ],
+                  ),
                 ),
+                SizedBox(
+                  height: 48,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    itemCount: Constants.defaultCategories.length,
+                    itemBuilder: (context, index) {
+                      final category = Constants.defaultCategories[index];
+                      final isSelected = category == _selectedCategory;
+                      
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: FilterChip(
+                          label: Text(category),
+                          selected: isSelected,
+                          onSelected: (selected) {
+                            setState(() {
+                              _selectedCategory = selected ? category : null;
+                            });
+                          },
+                          backgroundColor: Theme.of(context).colorScheme.surface,
+                          selectedColor: listColor.withOpacity(0.2),
+                          checkmarkColor: listColor,
+                          avatar: isSelected ? Icon(
+                            Icons.check_circle,
+                            color: listColor,
+                            size: 18,
+                          ) : null,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 8),
               ],
             ),
           ),
-          const Divider(),
-          ...purchasedItems.map(
-            (item) => Padding(
-              padding: const EdgeInsets.only(bottom: 4.0),
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 500),
-                opacity: 0.6,
-                child: ShoppingListItem(item: item),
-              ),
-            ),
+        ),
+        // Ürün listesi
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.all(16.0),
+            children: [
+              if (unpurchasedItems.isNotEmpty) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: listColor,
+                        foregroundColor: ColorUtils.getContrastColor(listColor),
+                        radius: 14,
+                        child: const Icon(
+                          Icons.shopping_basket_outlined,
+                          size: 16,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Alınacaklar (${unpurchasedItems.length})',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(),
+                ...unpurchasedItems.map(
+                  (item) => Padding(
+                    padding: const EdgeInsets.only(bottom: 4.0),
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 500),
+                      opacity: 1.0,
+                      child: ShoppingListItem(item: item),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+
+              if (purchasedItems.isNotEmpty) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: listColor.withAlpha((0.7 * 255).round()),
+                        foregroundColor: ColorUtils.getContrastColor(listColor),
+                        radius: 14,
+                        child: const Icon(
+                          Icons.check_circle_outline,
+                          size: 16,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Alınanlar (${purchasedItems.length})',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const Spacer(),
+                      TextButton.icon(
+                        icon: const Icon(Icons.delete_sweep, size: 16),
+                        label: const Text('Temizle'),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder:
+                                (context) => AlertDialog(
+                                  title: const Text('Alınanları Temizle'),
+                                  content: const Text(
+                                    'Satın alınmış tüm ürünler listeden kaldırılacak. Onaylıyor musunuz?',
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text('İPTAL'),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        provider.clearCompletedItems();
+                                        Navigator.pop(context);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Satın alınan ürünler silindi',
+                                            ),
+                                            duration: Duration(seconds: 2),
+                                          ),
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        foregroundColor: Colors.white,
+                                        backgroundColor: Colors.red,
+                                      ),
+                                      child: const Text('TEMİZLE'),
+                                    ),
+                                  ],
+                                ),
+                          );
+                        },
+                        style: TextButton.styleFrom(foregroundColor: Colors.red),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(),
+                ...purchasedItems.map(
+                  (item) => Padding(
+                    padding: const EdgeInsets.only(bottom: 4.0),
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 500),
+                      opacity: 0.6,
+                      child: ShoppingListItem(item: item),
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
-        ],
+        ),
       ],
     );
   }

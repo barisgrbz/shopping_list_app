@@ -181,11 +181,15 @@ class ShoppingListProvider with ChangeNotifier {
   }
 
   // Ürün ekleme
-  Future<void> addItem(String name) async {
+  Future<void> addItem(String name, {String category = Constants.defaultCategory}) async {
     // Eğer seçili liste yoksa, ekleme yapma
     if (selectedList == null) return;
 
-    final newItem = ShoppingItem.create(name: name, listId: selectedList!.id);
+    final newItem = ShoppingItem.create(
+      name: name, 
+      listId: selectedList!.id, 
+      category: category,
+    );
 
     final itemsBox = await Hive.openBox<ShoppingItem>(Constants.itemsBoxName);
     await itemsBox.put(newItem.id, newItem);
@@ -200,7 +204,8 @@ class ShoppingListProvider with ChangeNotifier {
   Future<void> addItemWithDetails({
     required String name, 
     required String listId, 
-    required bool isPurchased
+    required bool isPurchased,
+    String category = Constants.defaultCategory,
   }) async {
     // Yeni ürün oluştur
     final newItem = ShoppingItem(
@@ -209,6 +214,7 @@ class ShoppingListProvider with ChangeNotifier {
       isPurchased: isPurchased,
       createdAt: DateTime.now(),
       listId: listId,
+      category: category,
     );
 
     final itemsBox = await Hive.openBox<ShoppingItem>(Constants.itemsBoxName);
@@ -261,6 +267,7 @@ class ShoppingListProvider with ChangeNotifier {
       isPurchased: _lastDeletedItem!.isPurchased,
       createdAt: _lastDeletedItem!.createdAt, // Orijinal oluşturma zamanını koru
       listId: _lastDeletedItem!.listId,
+      category: _lastDeletedItem!.category,
     );
     
     final itemsBox = await Hive.openBox<ShoppingItem>(Constants.itemsBoxName);
@@ -300,10 +307,14 @@ class ShoppingListProvider with ChangeNotifier {
   }
 
   // Ürün güncelleme
-  Future<void> updateItem(String id, String newName) async {
+  Future<void> updateItem(String id, String newName, {String? category}) async {
     final index = _items.indexWhere((item) => item.id == id);
     if (index != -1) {
       _items[index].name = newName;
+      
+      if (category != null) {
+        _items[index].category = category;
+      }
 
       final box = await Hive.openBox<ShoppingItem>(Constants.itemsBoxName);
       await box.put(_items[index].id, _items[index]);

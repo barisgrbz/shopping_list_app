@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/shopping_list_provider.dart';
 import '../models/shopping_list.dart';
+import '../utils/constants.dart';
+import '../utils/category_helper.dart';
 
 class AddItemDialog extends StatefulWidget {
   const AddItemDialog({super.key});
@@ -10,25 +12,19 @@ class AddItemDialog extends StatefulWidget {
   State<AddItemDialog> createState() => _AddItemDialogState();
 }
 
-class _AddItemDialogState extends State<AddItemDialog> {
+class _AddItemDialogState extends State<AddItemDialog> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _textController = TextEditingController();
-  final List<String> _suggestions = [
-    'Süt',
-    'Ekmek',
-    'Yumurta',
-    'Peynir',
-    'Meyve',
-    'Sebze',
-    'Su',
-    'Çay',
-    'Kahve',
-    'Makarna',
-    'Pirinç',
-  ];
+  
+  late TabController _tabController;
+  String? _selectedListId;
+  String? _selectedCategory;
+  bool _isListView = false; // Liste görünümü kontrolü
+  bool _isTabView = true; // Tab görünümü veya Accordion görünümü kontrolü
+  // Kategorilerin genişletilme durumları
+  late List<bool> _expandedCategories;
 
   bool _isSubmitting = false;
-  String? _selectedListId;
 
   @override
   void initState() {
@@ -36,36 +32,64 @@ class _AddItemDialogState extends State<AddItemDialog> {
     // Initialize with current list
     final provider = Provider.of<ShoppingListProvider>(context, listen: false);
     _selectedListId = provider.selectedListId;
+    
+    // Tab controller for categories
+    _tabController = TabController(
+      length: Constants.defaultCategories.length,
+      vsync: this,
+    );
+    
+    // Initialize expanded categories
+    _expandedCategories = List.generate(
+      Constants.defaultCategories.length,
+      (index) => index == 0, // İlk kategori açık, diğerleri kapalı
+    );
   }
 
   @override
   void dispose() {
     _textController.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
-  void _addItem() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isSubmitting = true;
-      });
+  void _addItem(String name) async {
+    if (name.isEmpty) return;
+    
+    setState(() {
+      _isSubmitting = true;
+    });
 
-      try {
-        final provider = Provider.of<ShoppingListProvider>(
-          context,
-          listen: false,
-        );
-        await provider.addItem(_textController.text.trim());
-        if (mounted) {
-          Navigator.of(context).pop();
-        }
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isSubmitting = false;
-          });
-        }
+    try {
+      final provider = Provider.of<ShoppingListProvider>(
+        context,
+        listen: false,
+      );
+      
+      // Kategori tespiti yap
+      final category = _selectedCategory ?? CategoryHelper.detectCategory(name);
+      
+      await provider.addItem(
+        name.trim(),
+        category: category,
+      );
+      
+      if (mounted) {
+        Navigator.of(context).pop();
       }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
+  }
+
+  void _addManualItem() async {
+    if (_formKey.currentState!.validate()) {
+      final itemName = _textController.text.trim();
+      _addItem(itemName);
     }
   }
 
@@ -110,7 +134,15 @@ class _AddItemDialogState extends State<AddItemDialog> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
       elevation: 0,
       backgroundColor: Colors.transparent,
-      child: contentBox(context, lists, selectedList),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.8,
+        ),
+        child: _isTabView 
+            ? contentBox(context, lists, selectedList)
+            : accordionContentBox(context, lists, selectedList),
+      ),
     );
   }
 
@@ -123,7 +155,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
     Color listColor = _getColorFromString(selectedList.color, context);
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         shape: BoxShape.rectangle,
         color:
@@ -141,11 +173,26 @@ class _AddItemDialogState extends State<AddItemDialog> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Text(
-            '${selectedList.name} Listesine Ekle',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '${selectedList.name} Listesine Ekle',
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.view_agenda, size: 20),
+                tooltip: 'Akordeon Görünümü',
+                onPressed: () {
+                  setState(() {
+                    _isTabView = false;
+                  });
+                },
+              ),
+            ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
           // Liste seçimi
           if (lists.length > 1)
             DropdownButtonFormField<String>(
@@ -180,100 +227,456 @@ class _AddItemDialogState extends State<AddItemDialog> {
                 });
               },
             ),
-          if (lists.length > 1) const SizedBox(height: 16),
+          if (lists.length > 1) const SizedBox(height: 12),
+          
+          // Manuel ürün ekleme formu
           Form(
             key: _formKey,
-            child: TextFormField(
-              controller: _textController,
-              autofocus: true,
-              decoration: InputDecoration(
-                labelText: 'Ürün Adı',
-                hintText: 'Örn: Süt, Ekmek',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: _textController,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    labelText: 'Ürün Adı Girin',
+                    hintText: 'Örn: Süt, Ekmek',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    prefixIcon: const Icon(Icons.shopping_bag_outlined),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () => _textController.clear(),
+                    ),
+                  ),
+                  textCapitalization: TextCapitalization.sentences,
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => _addManualItem(),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Lütfen bir ürün adı girin';
+                    }
+                    return null;
+                  },
                 ),
-                prefixIcon: const Icon(Icons.shopping_bag_outlined),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () => _textController.clear(),
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                  onPressed: _isSubmitting ? null : _addManualItem,
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Ekle'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: listColor,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 40),
+                  ),
                 ),
-              ),
-              textCapitalization: TextCapitalization.sentences,
-              textInputAction: TextInputAction.done,
-              onFieldSubmitted: (_) => _addItem(),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Lütfen bir ürün adı girin';
-                }
-                return null;
-              },
+              ],
             ),
           ),
-          const SizedBox(height: 16),
-          if (_suggestions.isNotEmpty)
-            SizedBox(
-              height: 40,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: _suggestions.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: ChoiceChip(
-                      label: Text(_suggestions[index]),
-                      selected: false,
-                      onSelected: (selected) {
-                        if (selected) {
-                          _textController.text = _suggestions[index];
-                        }
-                      },
-                    ),
-                  );
+          
+          // VEYA ayırıcısı
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 12.0),
+            child: Row(
+              children: [
+                Expanded(child: Divider()),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text('VEYA KATEGORİDEN SEÇİN', style: TextStyle(fontSize: 11)),
+                ),
+                Expanded(child: Divider()),
+              ],
+            ),
+          ),
+          
+          // Kategori tabları
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 36,
+                  alignment: Alignment.centerLeft,
+                  child: TabBar(
+                    controller: _tabController,
+                    isScrollable: true,
+                    tabs: Constants.defaultCategories
+                        .map((category) => Tab(
+                          text: category,
+                          height: 36,
+                        ))
+                        .toList(),
+                    labelColor: Theme.of(context).colorScheme.primary,
+                    labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    unselectedLabelStyle: const TextStyle(fontSize: 12),
+                    indicatorColor: Theme.of(context).colorScheme.primary,
+                    indicatorSize: TabBarIndicatorSize.label,
+                  ),
+                ),
+              ),
+              // Görünüm değiştirme düğmesi
+              IconButton(
+                icon: Icon(
+                  _isListView ? Icons.grid_view : Icons.view_list,
+                  size: 20,
+                ),
+                tooltip: _isListView ? 'Izgara Görünümü' : 'Liste Görünümü',
+                onPressed: () {
+                  setState(() {
+                    _isListView = !_isListView;
+                  });
                 },
               ),
-            ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TextButton(
-                onPressed:
-                    _isSubmitting ? null : () => Navigator.of(context).pop(),
-                child: const Text('İptal'),
-              ),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: _isSubmitting ? null : _addItem,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                  backgroundColor: listColor,
-                ),
-                child:
-                    _isSubmitting
-                        ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                        : const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.add, color: Colors.white),
-                            SizedBox(width: 8),
-                            Text('Ekle', style: TextStyle(color: Colors.white)),
-                          ],
-                        ),
-              ),
             ],
+          ),
+          
+          // Kategori içeriği
+          Flexible(
+            child: SizedBox(
+              height: 180,
+              child: TabBarView(
+                controller: _tabController,
+                children: Constants.defaultCategories.map((category) {
+                  final products = CategoryHelper.getSuggestionsForCategory(category);
+                  
+                  if (products.isEmpty) {
+                    return const Center(
+                      child: Text('Bu kategoride önerilen ürün bulunmuyor.'),
+                    );
+                  }
+                  
+                  return _isListView
+                    ? _buildListView(context, products, category)
+                    : _buildChipsView(context, products, category);
+                }).toList(),
+              ),
+            ),
           ),
         ],
       ),
     );
+  }
+
+  // Liste görünümü 
+  Widget _buildListView(BuildContext context, List<String> products, String category) {
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      itemCount: products.length,
+      separatorBuilder: (context, index) => const Divider(height: 1),
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(
+            products[index],
+            style: const TextStyle(fontSize: 14),
+          ),
+          dense: true,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 0),
+          visualDensity: VisualDensity.compact,
+          enabled: !_isSubmitting,
+          leading: Icon(
+            Icons.add_circle_outline,
+            size: 18,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          onTap: _isSubmitting
+            ? null
+            : () {
+                setState(() {
+                  _selectedCategory = category;
+                });
+                _addItem(products[index]);
+              },
+        );
+      },
+    );
+  }
+
+  // Çip görünümü
+  Widget _buildChipsView(BuildContext context, List<String> products, String category) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+      child: Wrap(
+        spacing: 6.0,
+        runSpacing: 6.0,
+        children: products.map((product) {
+          return ActionChip(
+            label: Text(
+              product,
+              style: TextStyle(
+                fontSize: 12,
+                color: _isSubmitting 
+                  ? Theme.of(context).colorScheme.onSurface.withOpacity(0.38) 
+                  : Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            avatar: Icon(
+              Icons.add,
+              size: 16,
+              color: _isSubmitting 
+                ? Theme.of(context).colorScheme.onSurface.withOpacity(0.38) 
+                : Theme.of(context).colorScheme.primary,
+            ),
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            side: BorderSide(
+              color: _isSubmitting 
+                ? Theme.of(context).colorScheme.outline.withOpacity(0.12) 
+                : Theme.of(context).colorScheme.outline.withOpacity(0.5),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 0),
+            visualDensity: VisualDensity.compact,
+            onPressed: _isSubmitting 
+              ? null 
+              : () {
+                setState(() {
+                  _selectedCategory = category;
+                });
+                _addItem(product);
+              },
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  // Accordion tarzı görünüm
+  Widget accordionContentBox(
+    BuildContext context,
+    List<ShoppingList> lists,
+    ShoppingList selectedList,
+  ) {
+    // Get color of selected list
+    Color listColor = _getColorFromString(selectedList.color, context);
+    
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        shape: BoxShape.rectangle,
+        color: Theme.of(context).dialogTheme.backgroundColor ??
+            Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 10.0,
+            offset: Offset(0.0, 10.0),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '${selectedList.name} Listesine Ekle',
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.view_module, size: 20),
+                tooltip: 'Tab Görünümü',
+                onPressed: () {
+                  setState(() {
+                    _isTabView = true;
+                  });
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          
+          // Liste seçimi
+          if (lists.length > 1)
+            DropdownButtonFormField<String>(
+              value: _selectedListId ?? selectedList.id,
+              decoration: InputDecoration(
+                labelText: 'Eklenecek Liste',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+              ),
+              items: lists.map((list) {
+                return DropdownMenuItem<String>(
+                  value: list.id,
+                  child: Text(list.name),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedListId = value;
+                  // Listeyi değiştirdiğinde, provider'ı da güncelle
+                  if (value != null) {
+                    Provider.of<ShoppingListProvider>(
+                      context,
+                      listen: false,
+                    ).selectList(value);
+                  }
+                });
+              },
+            ),
+          if (lists.length > 1) const SizedBox(height: 12),
+          
+          // Manuel ürün ekleme formu
+          Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: _textController,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    labelText: 'Ürün Adı Girin',
+                    hintText: 'Örn: Süt, Ekmek',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    prefixIcon: const Icon(Icons.shopping_bag_outlined),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () => _textController.clear(),
+                    ),
+                  ),
+                  textCapitalization: TextCapitalization.sentences,
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => _addManualItem(),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Lütfen bir ürün adı girin';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                  onPressed: _isSubmitting ? null : _addManualItem,
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Ekle'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: listColor,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 40),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // VEYA ayırıcısı
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 12.0),
+            child: Row(
+              children: [
+                Expanded(child: Divider()),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text('VEYA KATEGORİDEN SEÇİN', style: TextStyle(fontSize: 11)),
+                ),
+                Expanded(child: Divider()),
+              ],
+            ),
+          ),
+          
+          // Kategori acordion listesi (custom)
+          Flexible(
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: Constants.defaultCategories.length,
+              itemBuilder: (context, index) {
+                final category = Constants.defaultCategories[index];
+                final products = CategoryHelper.getSuggestionsForCategory(category);
+                
+                return Card(
+                  margin: EdgeInsets.only(bottom: 8.0),
+                  child: Column(
+                    children: [
+                      // Kategori başlığı
+                      ListTile(
+                        leading: Icon(
+                          getCategoryIcon(category),
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        title: Text(
+                          category,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        trailing: Icon(
+                          _expandedCategories[index] 
+                              ? Icons.keyboard_arrow_up 
+                              : Icons.keyboard_arrow_down
+                        ),
+                        onTap: () {
+                          setState(() {
+                            _expandedCategories[index] = !_expandedCategories[index];
+                          });
+                        },
+                      ),
+                      
+                      // Kategori içeriği
+                      if (_expandedCategories[index])
+                        products.isEmpty
+                          ? const Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: Text('Bu kategoride önerilen ürün bulunmuyor.'),
+                            )
+                          : Padding(
+                              padding: const EdgeInsets.only(
+                                left: 16.0,
+                                right: 16.0,
+                                bottom: 16.0,
+                              ),
+                              child: Wrap(
+                                spacing: 6.0,
+                                runSpacing: 6.0,
+                                children: products.map((product) {
+                                  return Chip(
+                                    label: Text(
+                                      product,
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                    deleteIcon: const Icon(
+                                      Icons.add_circle_outline,
+                                      size: 16,
+                                    ),
+                                    onDeleted: _isSubmitting
+                                        ? null
+                                        : () {
+                                            setState(() {
+                                              _selectedCategory = category;
+                                            });
+                                            _addItem(product);
+                                          },
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  // Kategori ikonlarını almak için yardımcı fonksiyon
+  IconData getCategoryIcon(String category) {
+    switch(category) {
+      case 'Meyve & Sebze': return Icons.eco;
+      case 'Et & Tavuk': return Icons.egg_alt;
+      case 'Süt Ürünleri': return Icons.breakfast_dining;
+      case 'İçecekler': return Icons.local_cafe;
+      case 'Temizlik': return Icons.clean_hands;
+      case 'Kişisel Bakım': return Icons.spa;
+      case 'Atıştırmalık': return Icons.fastfood;
+      case 'Ev Gereçleri': return Icons.cleaning_services;
+      case 'Diğer': return Icons.more_horiz;
+      default: return Icons.shopping_basket;
+    }
   }
 }
