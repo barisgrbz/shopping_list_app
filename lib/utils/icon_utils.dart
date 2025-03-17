@@ -8,8 +8,7 @@ class IconUtils {
       return Icons.list_alt; // Varsayılan ikon
     }
     
-    // Bilinen ikon isimleri
-    Map<String, IconData> iconMap = {
+    const Map<String, IconData> iconMap = {
       'list_alt': Icons.list_alt,
       'shopping_bag': Icons.shopping_bag,
       'shopping_cart': Icons.shopping_cart,
@@ -29,12 +28,8 @@ class IconUtils {
       return iconMap[iconString]!;
     }
     
-    // İkon code'u olarak kaydedilmişse IconData'ya dönüştürmeyi dene
-    try {
-      return IconData(int.parse(iconString), fontFamily: 'MaterialIcons');
-    } catch (e) {
-      return Icons.list_alt; // Hata durumunda varsayılan ikon
-    }
+    // Eşleşme yoksa varsayılan ikonu döndür
+    return Icons.list_alt; // Varsayılan ikon
   }
   
   /// Ikon değerini string'e dönüştürür (kaydetmek için)
