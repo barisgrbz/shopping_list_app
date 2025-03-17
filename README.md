@@ -99,7 +99,7 @@ flutter build ios
 ## 🔮 Gelecek Özellikler
 
 - [x] Çoklu liste desteği
-- [ ] Kategorilere göre filtreleme
+- [x] Kategorilere göre filtreleme
 - [ ] Bulut senkronizasyonu
 - [ ] Liste paylaşma
 - [ ] Bildirimler ve hatırlatıcılar
