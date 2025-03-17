@@ -98,12 +98,14 @@ flutter build ios
 
 ## 🔮 Gelecek Özellikler
 
-- [ ] Çoklu liste desteği
+- [x] Çoklu liste desteği
 - [ ] Kategorilere göre filtreleme
 - [ ] Bulut senkronizasyonu
 - [ ] Liste paylaşma
 - [ ] Bildirimler ve hatırlatıcılar
 - [ ] Sesli komutlarla ürün ekleme
+## Güncellemeler (Changelog)
+Güncellemeleri görmek için [Changelog.md](changelog.md) dosyasına göz atabilirsiniz.
 
 ## 🤝 Katkıda Bulunma
 
