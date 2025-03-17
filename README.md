@@ -105,7 +105,7 @@ flutter build ios
 - [ ] Bildirimler ve hatırlatıcılar
 - [ ] Sesli komutlarla ürün ekleme
 ## Güncellemeler (Changelog)
-Güncellemeleri görmek için [Changelog.md](changelog.md) dosyasına göz atabilirsiniz.
+Güncellemeleri görmek için [Changelog.md](CHANGELOG.md) dosyasına göz atabilirsiniz.
 
 ## 🤝 Katkıda Bulunma
 
