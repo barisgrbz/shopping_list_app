@@ -100,7 +100,7 @@ class ShoppingListItem extends StatelessWidget {
                     color: listColor,
                   ),
                   onPressed: () {
-                    // Düzenleme işlevi eklenecek
+                    _showEditItemDialog(context, item);
                   },
                 ),
                 IconButton(
@@ -139,5 +139,43 @@ class ShoppingListItem extends StatelessWidget {
     } else {
       return 'Az önce';
     }
+  }
+
+  void _showEditItemDialog(BuildContext context, ShoppingItem item) {
+    final TextEditingController controller = TextEditingController(text: item.name);
+    
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Ürünü Düzenle'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              labelText: 'Ürün Adı',
+              border: OutlineInputBorder(),
+            ),
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('İPTAL'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (controller.text.trim().isNotEmpty) {
+                  // Provider üzerinden ürünü güncelle
+                  Provider.of<ShoppingListProvider>(context, listen: false)
+                      .updateItem(item.id, controller.text.trim());
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('KAYDET'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
