@@ -1,11 +1,11 @@
 {
-    "name": "shopping_list_app",
-    "short_name": "shopping_list_app",
+    "name": "Alışveriş Listesi",
+    "short_name": "Alışveriş",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#4CAF50",
     "theme_color": "#4CAF50",
-    "description": "A new Flutter project.",
+    "description": "Modern ve kullanıcı dostu bir alışveriş listesi uygulaması. Alışveriş listenizi zahmetsizce yönetin.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

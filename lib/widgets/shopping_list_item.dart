@@ -2,36 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/shopping_item.dart';
 import '../providers/shopping_list_provider.dart';
+import '../utils/color_utils.dart';
 import 'package:intl/intl.dart';
 
 class ShoppingListItem extends StatelessWidget {
   final ShoppingItem item;
 
-  const ShoppingListItem({
-    super.key,
-    required this.item,
-  });
+  const ShoppingListItem({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
     final timeAgo = _getTimeAgo(item.createdAt);
-    
+    final provider = Provider.of<ShoppingListProvider>(context, listen: false);
+    final selectedList = provider.selectedList;
+    final Color? listColorOrNull = selectedList?.color != null 
+      ? ColorUtils.colorFromString(selectedList?.color) 
+      : null;
+    final Color listColor = listColorOrNull ?? Theme.of(context).colorScheme.primary;
+
     return Dismissible(
       key: Key(item.id),
       background: Container(
         color: Colors.red,
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20.0),
-        child: const Icon(
-          Icons.delete,
-          color: Colors.white,
-        ),
+        child: const Icon(Icons.delete, color: Colors.white),
       ),
       direction: DismissDirection.endToStart,
       onDismissed: (_) {
-        Provider.of<ShoppingListProvider>(context, listen: false)
-            .removeItem(item.id);
-        
+        Provider.of<ShoppingListProvider>(
+          context,
+          listen: false,
+        ).removeItem(item.id);
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${item.name} silindi'),
@@ -50,46 +53,52 @@ class ShoppingListItem extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
           side: BorderSide(
-            color: item.isPurchased 
-                ? Colors.grey.shade300 
-                : Colors.transparent,
+            color: item.isPurchased ? Colors.grey.shade300 : Colors.transparent,
             width: 1.0,
           ),
         ),
         child: Padding(
           padding: const EdgeInsets.all(4.0),
           child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 4.0,
+            ),
             leading: Checkbox(
               value: item.isPurchased,
               shape: const CircleBorder(),
-              activeColor: Theme.of(context).colorScheme.primary,
+              activeColor: listColor,
               onChanged: (_) {
-                Provider.of<ShoppingListProvider>(context, listen: false)
-                    .togglePurchasedStatus(item.id);
+                Provider.of<ShoppingListProvider>(
+                  context,
+                  listen: false,
+                ).togglePurchasedStatus(item.id);
               },
             ),
             title: Text(
               item.name,
               style: TextStyle(
                 fontSize: 16,
-                fontWeight: item.isPurchased ? FontWeight.normal : FontWeight.bold,
-                decoration: item.isPurchased ? TextDecoration.lineThrough : null,
+                fontWeight:
+                    item.isPurchased ? FontWeight.normal : FontWeight.bold,
+                decoration:
+                    item.isPurchased ? TextDecoration.lineThrough : null,
                 color: item.isPurchased ? Colors.grey : null,
               ),
             ),
             subtitle: Text(
               'Eklenme: $timeAgo',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey.shade600,
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.edit, size: 20),
+                  icon: Icon(
+                    Icons.edit, 
+                    size: 20,
+                    color: listColor,
+                  ),
                   onPressed: () {
                     // Düzenleme işlevi eklenecek
                   },
@@ -101,8 +110,10 @@ class ShoppingListItem extends StatelessWidget {
                     color: Colors.red.shade300,
                   ),
                   onPressed: () {
-                    Provider.of<ShoppingListProvider>(context, listen: false)
-                        .removeItem(item.id);
+                    Provider.of<ShoppingListProvider>(
+                      context,
+                      listen: false,
+                    ).removeItem(item.id);
                   },
                 ),
               ],
@@ -112,10 +123,10 @@ class ShoppingListItem extends StatelessWidget {
       ),
     );
   }
-  
+
   String _getTimeAgo(DateTime dateTime) {
     final difference = DateTime.now().difference(dateTime);
-    
+
     if (difference.inDays > 7) {
       final dateFormat = DateFormat.yMMMd(); // Örn: Jan 21, 2024
       return dateFormat.format(dateTime);
@@ -129,4 +140,4 @@ class ShoppingListItem extends StatelessWidget {
       return 'Az önce';
     }
   }
-} 
+}
