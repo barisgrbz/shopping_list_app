@@ -9,6 +9,7 @@ import '../widgets/edit_list_dialog.dart';
 import '../models/shopping_list.dart';
 import '../utils/icon_utils.dart';
 import '../utils/color_utils.dart';
+import '../screens/search_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -32,7 +33,13 @@ class HomeScreen extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.search),
                 onPressed: () {
-                  // Arama işlevi eklenecek
+                  // Arama sayfasına yönlendir
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SearchScreen(),
+                    ),
+                  );
                 },
               ),
             ],

@@ -41,6 +41,20 @@ class ShoppingListProvider with ChangeNotifier {
   List<ShoppingItem> get currentUnpurchasedItems =>
       currentItems.where((item) => !item.isPurchased).toList();
 
+  // Arama işlevi
+  List<ShoppingItem> searchItems(String query, {bool searchAllLists = false}) {
+    if (query.isEmpty) {
+      return searchAllLists ? allItems : currentItems;
+    }
+    
+    final lowercaseQuery = query.toLowerCase();
+    final itemsToSearch = searchAllLists ? allItems : currentItems;
+    
+    return itemsToSearch
+        .where((item) => item.name.toLowerCase().contains(lowercaseQuery))
+        .toList();
+  }
+
   // Constructor
   ShoppingListProvider() {
     _loadLists();
