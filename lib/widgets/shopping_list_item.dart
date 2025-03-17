@@ -223,11 +223,14 @@ class ShoppingListItem extends StatelessWidget {
         action: SnackBarAction(
           label: 'GERİ AL',
           onPressed: () {
+            // Context'i asenkron işlemden önce yakalayalım
+            final scaffoldMessenger = ScaffoldMessenger.of(context);
+            
             // Son silinen ürünü geri yükle
             provider.restoreLastDeletedItem().then((_) {
               // İşlem tamamlandığında bildirim göster
-              ScaffoldMessenger.of(context).clearSnackBars();
-              ScaffoldMessenger.of(context).showSnackBar(
+              scaffoldMessenger.clearSnackBars();
+              scaffoldMessenger.showSnackBar(
                 const SnackBar(
                   content: Text('Ürün geri alındı'),
                   duration: Duration(seconds: 1),

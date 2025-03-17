@@ -5,19 +5,10 @@ import 'dart:developer' as developer;
 class ColorUtils {
   /// Renk nesnesini RRGGBB formatında string'e dönüştürür
   static String colorToString(Color color) {
-    // RGB değerlerini doğrudan int değerlere dönüştür ve hex string oluştur
-    final int r = color.red; 
-    final int g = color.green;
-    final int b = color.blue;
-    
-    String hexString = 
-      r.toRadixString(16).padLeft(2, '0') +
-      g.toRadixString(16).padLeft(2, '0') +
-      b.toRadixString(16).padLeft(2, '0');
-    
-    developer.log('ColorUtils.colorToString: RGB($r,$g,$b) => $hexString');
-    
-    return hexString;
+    String redHex = color.r.round().toRadixString(16).padLeft(2, '0');
+    String greenHex = color.g.round().toRadixString(16).padLeft(2, '0');
+    String blueHex = color.b.round().toRadixString(16).padLeft(2, '0');
+    return "$redHex$greenHex$blueHex";
   }
 
   /// RRGGBB formatındaki string'i Color nesnesine dönüştürür
@@ -49,7 +40,7 @@ class ColorUtils {
       
       final color = Color.fromRGBO(r, g, b, 1.0);
       
-      developer.log('ColorUtils.colorFromString: "$normalizedColor" => RGB(${color.red},${color.green},${color.blue})');
+      developer.log('ColorUtils.colorFromString: "$normalizedColor" => RGB(${color.r},${color.g},${color.b})');
       
       return color;
     } catch (e) {
@@ -100,7 +91,7 @@ class ColorUtils {
 
     final foundColor = namedColors[standardName];
     if (foundColor != null) {
-      developer.log('ColorUtils.colorFromName: Renk bulundu - "$standardName" => RGB(${foundColor.red},${foundColor.green},${foundColor.blue})');
+      developer.log('ColorUtils.colorFromName: Renk bulundu - "$standardName" => RGB(${foundColor.r},${foundColor.g},${foundColor.b})');
       return foundColor;
     }
 
@@ -116,11 +107,11 @@ class ColorUtils {
     }
 
     // Parlaklık hesapla
-    final luminance = (0.299 * backgroundColor.red + 
-                         0.587 * backgroundColor.green + 
-                         0.114 * backgroundColor.blue) / 255;
+    final luminance = (0.299 * backgroundColor.r + 
+                         0.587 * backgroundColor.g + 
+                         0.114 * backgroundColor.b) / 255;
 
-    developer.log('ColorUtils.getContrastColor: Parlaklık: $luminance, RGB(${backgroundColor.red},${backgroundColor.green},${backgroundColor.blue})');
+    developer.log('ColorUtils.getContrastColor: Parlaklık: $luminance, RGB(${backgroundColor.r},${backgroundColor.g},${backgroundColor.b})');
     
     final contrastColor = luminance > 0.5 ? Colors.black : Colors.white;
     

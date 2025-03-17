@@ -23,22 +23,22 @@ class _EditListDialogState extends BaseListDialogState<EditListDialog> {
     nameController.text = widget.list.name;
     selectedIcon = IconUtils.getIconData(widget.list.icon);
     
-    // Mevcut rengi alın veya varsayılan kullanın
+    // Başlangıç değerlerini ayarla
     if (widget.list.color != null) {
-      final Color? colorFromString = ColorUtils.colorFromString(widget.list.color);
+      final colorFromString = ColorUtils.colorFromString(widget.list.color!);
       if (colorFromString != null) {
         selectedColor = colorFromString;
-        developer.log('EditListDialog: initializeValues - Mevcut renk yüklendi: "${widget.list.color}" => RGB(${selectedColor.red},${selectedColor.green},${selectedColor.blue})');
+        developer.log('EditListDialog: initializeValues - Renk dönüşümü başarılı: "${widget.list.color}" => RGB(${selectedColor.r},${selectedColor.g},${selectedColor.b})');
       } else {
-        developer.log('EditListDialog: initializeValues - Renk dönüşümü başarısız, varsayılan renk kullanılıyor. Input: "${widget.list.color}"');
+        developer.log('EditListDialog: initializeValues - Renk dönüşümü başarısız: "${widget.list.color}"');
         selectedColor = Colors.green; // Varsayılan renk
       }
     } else {
-      developer.log('EditListDialog: initializeValues - Liste için renk yok, varsayılan renk kullanılıyor');
+      developer.log('EditListDialog: initializeValues - Renk değeri yok');
       selectedColor = Colors.green; // Varsayılan renk
     }
     
-    developer.log('EditListDialog: initializeValues - Kullanılan renk: RGB(${selectedColor.red},${selectedColor.green},${selectedColor.blue})');
+    developer.log('EditListDialog: initializeValues - Kullanılan renk: RGB(${selectedColor.r},${selectedColor.g},${selectedColor.b})');
   }
 
   @override
@@ -46,12 +46,12 @@ class _EditListDialogState extends BaseListDialogState<EditListDialog> {
     final provider = Provider.of<ShoppingListProvider>(context, listen: false);
     final colorString = ColorUtils.colorToString(selectedColor);
     
-    developer.log('EditListDialog: handleSubmit - Renk dönüşümü: RGB(${selectedColor.red},${selectedColor.green},${selectedColor.blue}) => "$colorString"');
+    developer.log('EditListDialog: handleSubmit - Renk dönüşümü: RGB(${selectedColor.r},${selectedColor.g},${selectedColor.b}) => "$colorString"');
     
     // Test amaçlı olarak dönüşümün tutarlı olup olmadığını kontrol edelim
     final testColor = ColorUtils.colorFromString(colorString);
     if (testColor != null) {
-      developer.log('EditListDialog: handleSubmit - Dönüşüm testi başarılı: "$colorString" => RGB(${testColor.red},${testColor.green},${testColor.blue})');
+      developer.log('EditListDialog: handleSubmit - Dönüşüm testi başarılı: "$colorString" => RGB(${testColor.r},${testColor.g},${testColor.b})');
     } else {
       developer.log('EditListDialog: handleSubmit - Dönüşüm testi başarısız: "$colorString"');
     }

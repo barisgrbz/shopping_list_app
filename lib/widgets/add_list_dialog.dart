@@ -21,7 +21,7 @@ class _AddListDialogState extends BaseListDialogState<AddListDialog> {
     selectedColor = Colors.green;
     selectedIcon = Icons.list_alt;
     developer.log('AddListDialog: initializeValues - Varsayılan değerler ayarlandı');
-    developer.log('AddListDialog: initializeValues - Varsayılan renk: RGB(${selectedColor.red},${selectedColor.green},${selectedColor.blue})');
+    developer.log('AddListDialog: initializeValues - Varsayılan renk: RGB(${selectedColor.r},${selectedColor.g},${selectedColor.b})');
   }
 
   @override
@@ -30,13 +30,13 @@ class _AddListDialogState extends BaseListDialogState<AddListDialog> {
     final colorString = ColorUtils.colorToString(selectedColor);
     
     developer.log('AddListDialog: handleSubmit - Seçilen renk bilgileri:');
-    developer.log('AddListDialog: handleSubmit - Renk: RGB(${selectedColor.red},${selectedColor.green},${selectedColor.blue})');
+    developer.log('AddListDialog: handleSubmit - Renk: RGB(${selectedColor.r},${selectedColor.g},${selectedColor.b})');
     developer.log('AddListDialog: handleSubmit - RRGGBB: $colorString');
     
     // Test amaçlı renk dönüşümünü tekrar kontrol edelim
     final colorFromString = ColorUtils.colorFromString(colorString);
     if (colorFromString != null) {
-      developer.log('AddListDialog: handleSubmit - Dönüşüm sonrası renk: RGB(${colorFromString.red},${colorFromString.green},${colorFromString.blue})');
+      developer.log('AddListDialog: handleSubmit - Dönüşüm sonrası renk: RGB(${colorFromString.r},${colorFromString.g},${colorFromString.b})');
     } else {
       developer.log('AddListDialog: handleSubmit - HATA! Renk dönüşümü başarısız oldu: "$colorString"');
     }

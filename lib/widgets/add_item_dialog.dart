@@ -56,15 +56,15 @@ class _AddItemDialogState extends State<AddItemDialog> with SingleTickerProvider
   void _addItem(String name) async {
     if (name.isEmpty) return;
     
-    setState(() {
-      _isSubmitting = true;
-    });
+      setState(() {
+        _isSubmitting = true;
+      });
 
-    try {
-      final provider = Provider.of<ShoppingListProvider>(
-        context,
-        listen: false,
-      );
+      try {
+        final provider = Provider.of<ShoppingListProvider>(
+          context,
+          listen: false,
+        );
       
       // Kategori tespiti yap
       final category = _selectedCategory ?? CategoryHelper.detectCategory(name);
@@ -74,16 +74,16 @@ class _AddItemDialogState extends State<AddItemDialog> with SingleTickerProvider
         category: category,
       );
       
-      if (mounted) {
-        Navigator.of(context).pop();
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isSubmitting = false;
+          });
+        }
       }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSubmitting = false;
-        });
-      }
-    }
   }
 
   void _addManualItem() async {
@@ -177,7 +177,7 @@ class _AddItemDialogState extends State<AddItemDialog> with SingleTickerProvider
             children: [
               Expanded(
                 child: Text(
-                  '${selectedList.name} Listesine Ekle',
+            '${selectedList.name} Listesine Ekle',
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -235,29 +235,29 @@ class _AddItemDialogState extends State<AddItemDialog> with SingleTickerProvider
             child: Column(
               children: [
                 TextFormField(
-                  controller: _textController,
-                  autofocus: true,
-                  decoration: InputDecoration(
+              controller: _textController,
+              autofocus: true,
+              decoration: InputDecoration(
                     labelText: 'Ürün Adı Girin',
-                    hintText: 'Örn: Süt, Ekmek',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    prefixIcon: const Icon(Icons.shopping_bag_outlined),
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () => _textController.clear(),
-                    ),
-                  ),
-                  textCapitalization: TextCapitalization.sentences,
-                  textInputAction: TextInputAction.done,
+                hintText: 'Örn: Süt, Ekmek',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                prefixIcon: const Icon(Icons.shopping_bag_outlined),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () => _textController.clear(),
+                ),
+              ),
+              textCapitalization: TextCapitalization.sentences,
+              textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _addManualItem(),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Lütfen bir ürün adı girin';
-                    }
-                    return null;
-                  },
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Lütfen bir ürün adı girin';
+                }
+                return null;
+              },
                 ),
                 const SizedBox(height: 12),
                 ElevatedButton.icon(
@@ -398,39 +398,27 @@ class _AddItemDialogState extends State<AddItemDialog> with SingleTickerProvider
         spacing: 6.0,
         runSpacing: 6.0,
         children: products.map((product) {
-          return ActionChip(
+          return InputChip(
             label: Text(
               product,
-              style: TextStyle(
-                fontSize: 12,
-                color: _isSubmitting 
-                  ? Theme.of(context).colorScheme.onSurface.withOpacity(0.38) 
-                  : Theme.of(context).colorScheme.onSurface,
-              ),
+              style: const TextStyle(fontSize: 12),
             ),
-            avatar: Icon(
-              Icons.add,
+            avatar: const Icon(
+              Icons.add_circle_outline,
               size: 16,
-              color: _isSubmitting 
-                ? Theme.of(context).colorScheme.onSurface.withOpacity(0.38) 
-                : Theme.of(context).colorScheme.primary,
             ),
-            backgroundColor: Theme.of(context).colorScheme.surface,
-            side: BorderSide(
-              color: _isSubmitting 
-                ? Theme.of(context).colorScheme.outline.withOpacity(0.12) 
-                : Theme.of(context).colorScheme.outline.withOpacity(0.5),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 0),
-            visualDensity: VisualDensity.compact,
-            onPressed: _isSubmitting 
-              ? null 
-              : () {
-                setState(() {
-                  _selectedCategory = category;
-                });
-                _addItem(product);
-              },
+            tooltip: 'Ekle: $product',
+            backgroundColor: Theme.of(context).chipTheme.backgroundColor,
+            disabledColor: Theme.of(context).disabledColor,
+            isEnabled: !_isSubmitting,
+            onPressed: _isSubmitting
+                ? null
+                : () {
+                    setState(() {
+                      _selectedCategory = category;
+                    });
+                    _addItem(product);
+                  },
           );
         }).toList(),
       ),
@@ -555,7 +543,7 @@ class _AddItemDialogState extends State<AddItemDialog> with SingleTickerProvider
                   onPressed: _isSubmitting ? null : _addManualItem,
                   icon: const Icon(Icons.add, size: 18),
                   label: const Text('Ekle'),
-                  style: ElevatedButton.styleFrom(
+                style: ElevatedButton.styleFrom(
                     backgroundColor: listColor,
                     foregroundColor: Colors.white,
                     minimumSize: const Size(double.infinity, 40),
@@ -569,7 +557,7 @@ class _AddItemDialogState extends State<AddItemDialog> with SingleTickerProvider
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 12.0),
             child: Row(
-              children: [
+                          children: [
                 Expanded(child: Divider()),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -632,16 +620,20 @@ class _AddItemDialogState extends State<AddItemDialog> with SingleTickerProvider
                                 spacing: 6.0,
                                 runSpacing: 6.0,
                                 children: products.map((product) {
-                                  return Chip(
+                                  return InputChip(
                                     label: Text(
                                       product,
                                       style: const TextStyle(fontSize: 12),
                                     ),
-                                    deleteIcon: const Icon(
+                                    avatar: const Icon(
                                       Icons.add_circle_outline,
                                       size: 16,
                                     ),
-                                    onDeleted: _isSubmitting
+                                    tooltip: 'Ekle: $product',
+                                    backgroundColor: Theme.of(context).chipTheme.backgroundColor,
+                                    disabledColor: Theme.of(context).disabledColor,
+                                    isEnabled: !_isSubmitting,
+                                    onPressed: _isSubmitting
                                         ? null
                                         : () {
                                             setState(() {
@@ -651,9 +643,9 @@ class _AddItemDialogState extends State<AddItemDialog> with SingleTickerProvider
                                           },
                                   );
                                 }).toList(),
-                              ),
-                            ),
-                    ],
+                        ),
+              ),
+            ],
                   ),
                 );
               },

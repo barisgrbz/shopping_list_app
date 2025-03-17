@@ -247,9 +247,9 @@ abstract class BaseListDialogState<T extends BaseListDialog> extends State<T> {
             itemCount: listColors.length,
             itemBuilder: (context, index) {
               final color = listColors[index];
-              final isSelected = color.red == selectedColor.red && 
-                              color.green == selectedColor.green && 
-                              color.blue == selectedColor.blue;
+              final isSelected = color.r == selectedColor.r && 
+                              color.g == selectedColor.g && 
+                              color.b == selectedColor.b;
               
               return GestureDetector(
                 onTap: () {

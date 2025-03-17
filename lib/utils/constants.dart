@@ -24,9 +24,10 @@ class Constants {
   static const int maxItemNameLength = 100;
   
   // Kategori sabitleri
-  static const String defaultCategory = 'Genel';
+  static const String defaultCategory = 'Diğer';
+  
+  // Tüm kategoriler listesi
   static const List<String> defaultCategories = [
-    'Genel',
     'Meyve & Sebze',
     'Et & Tavuk',
     'Süt Ürünleri',
@@ -38,29 +39,28 @@ class Constants {
     'Diğer',
   ];
   
-  // Kategorilere göre yaygın ürünler
+  // Kategori bazlı örnek ürünler
   static const Map<String, List<String>> categoryProducts = {
-    'Meyve & Sebze': ['Elma', 'Muz', 'Portakal', 'Domates', 'Salatalık', 'Soğan', 'Patates', 'Biber', 'Ispanak', 'Maydanoz', 'Havuç'],
-    'Et & Tavuk': ['Kıyma', 'Tavuk Göğsü', 'Kuşbaşı', 'Dana Et', 'Köfte', 'Tavuk But', 'Balık', 'Hindi', 'Sucuk', 'Sosis'],
-    'Süt Ürünleri': ['Süt', 'Peynir', 'Yoğurt', 'Tereyağı', 'Kaymak', 'Kaşar', 'Ayran', 'Kefir', 'Krema'],
-    'İçecekler': ['Su', 'Çay', 'Kahve', 'Meyve Suyu', 'Kola', 'Soda', 'Gazoz', 'Ayran', 'Limonata'],
-    'Temizlik': ['Deterjan', 'Yumuşatıcı', 'Çamaşır Suyu', 'Bulaşık Sabunu', 'Temizlik Bezi', 'Cam Sil', 'Yüzey Temizleyici'],
-    'Kişisel Bakım': ['Şampuan', 'Duş Jeli', 'Diş Macunu', 'Sabun', 'Tıraş Köpüğü', 'Deodorant', 'Islak Mendil'],
-    'Atıştırmalık': ['Cips', 'Çikolata', 'Bisküvi', 'Kraker', 'Kuruyemiş', 'Gofret', 'Çekirdek', 'Kek'],
-    'Ev Gereçleri': ['Ampul', 'Pil', 'Kibrit', 'Mum', 'Peçete', 'Kağıt Havlu', 'Tuvalet Kağıdı', 'Çöp Poşeti'],
-    'Genel': ['Ekmek', 'Tuz', 'Şeker', 'Un', 'Makarna', 'Pirinç', 'Yumurta', 'Yağ', 'Salça', 'Bulgur'],
-    'Diğer': [],
+    'Meyve & Sebze': ['Elma', 'Muz', 'Portakal', 'Domates', 'Salatalık', 'Patates', 'Soğan', 'Limon', 'Biber'],
+    'Et & Tavuk': ['Kıyma', 'Tavuk Göğsü', 'Kuşbaşı', 'Biftek', 'Balık', 'Sucuk', 'Sosis', 'Jambon'],
+    'Süt Ürünleri': ['Süt', 'Yoğurt', 'Peynir', 'Tereyağı', 'Kaymak', 'Ayran', 'Kefir', 'Kaşar'],
+    'İçecekler': ['Su', 'Meyve Suyu', 'Kola', 'Çay', 'Kahve', 'Gazoz', 'Maden Suyu', 'Ayran'],
+    'Temizlik': ['Deterjan', 'Yumuşatıcı', 'Bulaşık Deterjanı', 'Çamaşır Suyu', 'Temizlik Bezi', 'Sünger', 'Çöp Poşeti'],
+    'Kişisel Bakım': ['Şampuan', 'Sabun', 'Diş Macunu', 'Duş Jeli', 'Tıraş Köpüğü', 'Deodorant', 'Pamuk'],
+    'Atıştırmalık': ['Çikolata', 'Bisküvi', 'Cips', 'Kuruyemiş', 'Kraker', 'Gofret', 'Kek'],
+    'Ev Gereçleri': ['Pil', 'Ampul', 'Çivi', 'Tornavida', 'Mum', 'Kibrit', 'Bant'],
+    'Diğer': ['Not Defteri', 'Kalem', 'Balon', 'Hediye Paketi', 'Oyuncak', 'Kitap'],
   };
   
-  // Ürün kategori eşleştirme için kelime tabanlı tespit sistemi
+  // Kategori anahtar kelimeleri (otomatik kategori tespiti için)
   static const Map<String, List<String>> categoryKeywords = {
-    'Meyve & Sebze': ['meyve', 'sebze', 'taze', 'organik', 'elma', 'muz', 'portakal', 'domates', 'salatalık', 'soğan', 'patates', 'biber', 'ıspanak', 'maydanoz', 'havuç'],
-    'Et & Tavuk': ['et', 'tavuk', 'kıyma', 'but', 'göğüs', 'kanat', 'biftek', 'pirzola', 'kuşbaşı', 'sucuk', 'sosis', 'balık', 'hindi', 'köfte'],
-    'Süt Ürünleri': ['süt', 'peynir', 'yoğurt', 'kaşar', 'ayran', 'tereyağ', 'kaymak', 'kefir', 'krema'],
-    'İçecekler': ['su', 'çay', 'kahve', 'meyve suyu', 'kola', 'gazoz', 'soda', 'limonata', 'şerbet', 'içecek'],
-    'Temizlik': ['deterjan', 'temizlik', 'temizleyici', 'çamaşır', 'bulaşık', 'sabun', 'sil', 'parlatıcı', 'bez', 'yumuşatıcı', 'çamaşır suyu'],
-    'Kişisel Bakım': ['şampuan', 'duş', 'diş', 'sabun', 'tıraş', 'bakım', 'krem', 'losyon', 'deodorant', 'jel', 'macun', 'mendil'],
-    'Atıştırmalık': ['cips', 'çikolata', 'bisküvi', 'gofret', 'kraker', 'kuruyemiş', 'çerez', 'atıştırmalık', 'kek', 'çekirdek'],
-    'Ev Gereçleri': ['ampul', 'pil', 'kağıt', 'havlu', 'peçete', 'çöp', 'poşet', 'paket', 'torba', 'kibrit', 'mum', 'tuvalet kağıdı'],
+    'Meyve & Sebze': ['meyve', 'sebze', 'elma', 'muz', 'portakal', 'domates', 'salatalık', 'patates', 'soğan', 'limon', 'biber', 'yeşil', 'taze'],
+    'Et & Tavuk': ['et', 'tavuk', 'kıyma', 'biftek', 'kuşbaşı', 'balık', 'sucuk', 'sosis', 'jambon', 'hindi', 'köfte'],
+    'Süt Ürünleri': ['süt', 'yoğurt', 'peynir', 'tereyağ', 'kaymak', 'ayran', 'kefir', 'kaşar', 'çökelek', 'lor'],
+    'İçecekler': ['su', 'meyve suyu', 'kola', 'çay', 'kahve', 'gazoz', 'maden suyu', 'ayran', 'içecek', 'içmek', 'şişe'],
+    'Temizlik': ['deterjan', 'yumuşatıcı', 'bulaşık', 'çamaşır suyu', 'temizlik', 'sünger', 'çöp poşeti', 'temiz', 'hijyen'],
+    'Kişisel Bakım': ['şampuan', 'sabun', 'diş macunu', 'duş jeli', 'tıraş', 'deodorant', 'pamuk', 'saç', 'cilt', 'krem'],
+    'Atıştırmalık': ['çikolata', 'bisküvi', 'cips', 'kuruyemiş', 'kraker', 'gofret', 'kek', 'atıştırmalık', 'tatlı', 'şeker'],
+    'Ev Gereçleri': ['pil', 'ampul', 'çivi', 'tornavida', 'mum', 'kibrit', 'bant', 'elektrik', 'tamir', 'alet'],
   };
 }
