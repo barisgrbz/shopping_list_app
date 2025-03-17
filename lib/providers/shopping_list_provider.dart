@@ -13,6 +13,9 @@ class ShoppingListProvider with ChangeNotifier {
 
   // Alışveriş ürünleri
   List<ShoppingItem> _items = [];
+  
+  // En son silinen ürün (geri alma için)
+  ShoppingItem? _lastDeletedItem;
 
   // UUID üreteci
   final _uuid = Uuid();
@@ -193,6 +196,30 @@ class ShoppingListProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // Belirli detaylarla ürün ekleme (geri alma işlemi için)
+  Future<void> addItemWithDetails({
+    required String name, 
+    required String listId, 
+    required bool isPurchased
+  }) async {
+    // Yeni ürün oluştur
+    final newItem = ShoppingItem(
+      id: _uuid.v4(),
+      name: name,
+      isPurchased: isPurchased,
+      createdAt: DateTime.now(),
+      listId: listId,
+    );
+
+    final itemsBox = await Hive.openBox<ShoppingItem>(Constants.itemsBoxName);
+    await itemsBox.put(newItem.id, newItem);
+
+    _items.add(newItem);
+    _updateListItemCounts();
+
+    notifyListeners();
+  }
+
   // Ürün durumu değiştirme
   Future<void> togglePurchasedStatus(String id) async {
     final index = _items.indexWhere((item) => item.id == id);
@@ -208,12 +235,43 @@ class ShoppingListProvider with ChangeNotifier {
 
   // Ürün silme
   Future<void> removeItem(String id) async {
+    // Silmeden önce ürünü saklayalım (geri alma için)
+    final index = _items.indexWhere((item) => item.id == id);
+    if (index != -1) {
+      _lastDeletedItem = _items[index];
+    }
+    
     _items.removeWhere((item) => item.id == id);
 
     final box = await Hive.openBox<ShoppingItem>(Constants.itemsBoxName);
     await box.delete(id);
 
     _updateListItemCounts();
+    notifyListeners();
+  }
+  
+  // Son silinen ürünü geri yükleme
+  Future<void> restoreLastDeletedItem() async {
+    if (_lastDeletedItem == null) return;
+    
+    // Silinen ürünün bir kopyasını oluştur (yeni ID ile)
+    final restoredItem = ShoppingItem(
+      id: _uuid.v4(),
+      name: _lastDeletedItem!.name,
+      isPurchased: _lastDeletedItem!.isPurchased,
+      createdAt: _lastDeletedItem!.createdAt, // Orijinal oluşturma zamanını koru
+      listId: _lastDeletedItem!.listId,
+    );
+    
+    final itemsBox = await Hive.openBox<ShoppingItem>(Constants.itemsBoxName);
+    await itemsBox.put(restoredItem.id, restoredItem);
+    
+    _items.add(restoredItem);
+    _updateListItemCounts();
+    
+    // Geçici ürünü temizle
+    _lastDeletedItem = null;
+    
     notifyListeners();
   }
 
