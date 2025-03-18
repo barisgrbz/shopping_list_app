@@ -18,8 +18,18 @@ jobs:
       - name: Flutter kurulumu
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.3'
+          flutter-version: '3.22.0'
+          dart-version: '3.7.0'
           channel: 'stable'
+          cache: true
+      
+      # Dart SDK sürümünü kontrol et
+      - name: Dart SDK Sürümünü Göster
+        run: dart --version
+      
+      # Flutter Doctor ile ortamı kontrol et
+      - name: Flutter Doktor Çalıştır
+        run: flutter doctor -v
       
       # Flutter paketlerini yükle
       - name: Paketleri Yükle
