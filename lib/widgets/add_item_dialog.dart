@@ -88,8 +88,55 @@ class _AddItemDialogState extends State<AddItemDialog> with SingleTickerProvider
 
   void _addManualItem() async {
     if (_formKey.currentState!.validate()) {
-      final itemName = _textController.text.trim();
-      _addItem(itemName);
+      final text = _textController.text.trim();
+      
+      // Alt alta yazılmış ürünleri ayrıştır
+      final lines = text.split('\n').where((line) => line.trim().isNotEmpty).toList();
+      
+      if (lines.length > 1) {
+        // Birden fazla satır varsa her birini ayrı ayrı ekle
+        setState(() {
+          _isSubmitting = true;
+        });
+        
+        try {
+          final provider = Provider.of<ShoppingListProvider>(
+            context,
+            listen: false,
+          );
+          
+          for (final line in lines) {
+            final itemName = line.trim();
+            if (itemName.isNotEmpty) {
+              final category = _selectedCategory ?? CategoryHelper.detectCategory(itemName);
+              await provider.addItem(
+                itemName,
+                category: category,
+              );
+            }
+          }
+          
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('${lines.length} ürün eklendi'),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+            Navigator.of(context).pop();
+          }
+        } finally {
+          if (mounted) {
+            setState(() {
+              _isSubmitting = false;
+            });
+          }
+        }
+      } else {
+        // Tek satır varsa normal şekilde ekle
+        final itemName = text;
+        _addItem(itemName);
+      }
     }
   }
 
@@ -235,29 +282,31 @@ class _AddItemDialogState extends State<AddItemDialog> with SingleTickerProvider
             child: Column(
               children: [
                 TextFormField(
-              controller: _textController,
-              autofocus: true,
-              decoration: InputDecoration(
+                  controller: _textController,
+                  autofocus: true,
+                  decoration: InputDecoration(
                     labelText: 'Ürün Adı Girin',
-                hintText: 'Örn: Süt, Ekmek',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                prefixIcon: const Icon(Icons.shopping_bag_outlined),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () => _textController.clear(),
-                ),
-              ),
-              textCapitalization: TextCapitalization.sentences,
-              textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (_) => _addManualItem(),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Lütfen bir ürün adı girin';
-                }
-                return null;
-              },
+                    hintText: 'Örn: Süt, Ekmek\nAltta alta yazın her satır ayrı ürün olarak eklenecektir',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    prefixIcon: const Icon(Icons.shopping_bag_outlined),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () => _textController.clear(),
+                    ),
+                  ),
+                  maxLines: 5, // Çok satırlı giriş için
+                  minLines: 1, // Minimum 1 satır
+                  keyboardType: TextInputType.multiline, // Çok satırlı klavye
+                  textCapitalization: TextCapitalization.sentences,
+                  textInputAction: TextInputAction.newline, // Alt satıra geçmek için
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Lütfen bir ürün adı girin';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 12),
                 ElevatedButton.icon(
@@ -518,7 +567,7 @@ class _AddItemDialogState extends State<AddItemDialog> with SingleTickerProvider
                   autofocus: true,
                   decoration: InputDecoration(
                     labelText: 'Ürün Adı Girin',
-                    hintText: 'Örn: Süt, Ekmek',
+                    hintText: 'Örn: Süt, Ekmek\nAltta alta yazın her satır ayrı ürün olarak eklenecektir',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
@@ -528,9 +577,11 @@ class _AddItemDialogState extends State<AddItemDialog> with SingleTickerProvider
                       onPressed: () => _textController.clear(),
                     ),
                   ),
+                  maxLines: 5, // Çok satırlı giriş için
+                  minLines: 1, // Minimum 1 satır
+                  keyboardType: TextInputType.multiline, // Çok satırlı klavye
                   textCapitalization: TextCapitalization.sentences,
-                  textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (_) => _addManualItem(),
+                  textInputAction: TextInputAction.newline, // Alt satıra geçmek için
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Lütfen bir ürün adı girin';
