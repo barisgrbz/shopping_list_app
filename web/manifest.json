@@ -1,6 +1,6 @@
 {
-    "name": "shopping_list_app",
-    "short_name": "shopping_list_app",
+    "name": "Alışveriş Listem",
+    "short_name": "Alışveriş Listem",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#4CAF50",
