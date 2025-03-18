@@ -10,6 +10,7 @@ Web versiyonuna [https://barisgrbz.github.io/shopping_list_app/](https://barisgr
 ## ✨ Özellikler
 
 - ✅ Alışveriş öğeleri ekleme, düzenleme ve silme
+- 📋 Çoklu ürün ekleme - alt alta yazılan ürünleri otomatik olarak ayrı ayrı ekleme
 - 🔄 Öğeleri satın alındı olarak işaretleme
 - 🕒 Eklenme zamanı bilgisi ve "ne zaman eklendi" gösterimi
 - 👆 Öğeleri kaydırarak (swipe to dismiss) silme özelliği
@@ -55,7 +56,7 @@ lib/
 ### Ön Koşullar
 
 - Flutter SDK (3.x veya üzeri)
-- Dart SDK (3.x veya üzeri)
+- Dart SDK (3.7.0 veya üzeri)
 - Android Studio / VS Code (önerilen)
 - Android SDK / Xcode (mobil platformlar için)
 
@@ -93,7 +94,7 @@ flutter build apk
 ### Web sürümü derlemek için:
 
 ```bash
-flutter build web
+flutter build web --base-href /shopping_list_app/
 ```
 
 ### iOS için:
@@ -105,6 +106,7 @@ flutter build ios
 ## 💡 Kullanım
 
 - Ana ekranda "+" butonuna tıklayarak yeni ürünler ekleyin
+- Çoklu ürün eklemek için her satıra bir ürün yazın ve "Ekle" butonuna tıklayın
 - Ürünün yanındaki onay kutusuna tıklayarak satın alındı olarak işaretleyin
 - Ürünü sağa kaydırarak veya sil butonuna basarak listeden kaldırın
 - "Temizle" butonuna tıklayarak tüm satın alınmış ürünleri tek seferde silin
@@ -114,6 +116,7 @@ flutter build ios
 
 - [x] Çoklu liste desteği
 - [x] Kategorilere göre filtreleme
+- [x] Çoklu ürün ekleme
 - [ ] Bulut senkronizasyonu
 - [ ] Liste paylaşma
 - [ ] Bildirimler ve hatırlatıcılar

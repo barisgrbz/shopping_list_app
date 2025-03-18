@@ -2,6 +2,23 @@
 
 Bu dosya, Alışveriş Listesi uygulamasının önemli değişikliklerini belgelemektedir.
 
+## [1.1.2] - 2025-03-18
+
+### Eklenen
+- Çoklu ürün ekleme özelliği - alt alta yazılan ürünleri tek seferde ekleme
+- Web sürümü için iyileştirmeler ve klavye giriş desteği
+- GitHub Pages web sürümü desteği ve güncellemesi
+
+### Değiştirilen
+- Ürün ekleme diyaloğu artık çoklu satır destekliyor
+- Web sürümü için build komutuna `--base-href` parametresi eklendi
+- Repository yapısı iyileştirildi, gereksiz build dosyaları silindi
+
+### Düzeltilen
+- Web sürümünde Enter tuşu davranışı iyileştirildi
+- GitHub Pages web uygulaması yolları düzeltildi
+- TextFormField duyarlılığı artırıldı
+
 ## [1.1.1] - 2025-03-18
 
 ### Eklenen
