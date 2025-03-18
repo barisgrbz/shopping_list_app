@@ -1,0 +1,39 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  
+  # Bu workflow'u manuel olarak da çalıştırabilirsiniz
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      
+      # Flutter kurulumu
+      - name: Flutter kurulumu
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.3'
+          channel: 'stable'
+      
+      # Flutter paketlerini yükle
+      - name: Paketleri Yükle
+        run: flutter pub get
+      
+      # Web için build
+      - name: Web için Build
+        run: flutter build web --release --base-href /shopping_list_app/
+      
+      # GitHub Pages'e deploy
+      - name: GitHub Pages'e Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
+          cname: # Eğer özel domain kullanıyorsanız burayı doldurun
+          force_orphan: true 
