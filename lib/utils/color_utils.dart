@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'dart:developer' as developer;
+import 'app_logger.dart';
 
 /// Renklerle ilgili yardımcı fonksiyonlar
 class ColorUtils {
+  static const String _tag = 'ColorUtils';
+
   /// Renk nesnesini RRGGBB formatında string'e dönüştürür
   static String colorToString(Color color) {
     String redHex = color.r.round().toRadixString(16).padLeft(2, '0');
@@ -14,23 +16,23 @@ class ColorUtils {
   /// RRGGBB formatındaki string'i Color nesnesine dönüştürür
   static Color? colorFromString(String? colorString) {
     if (colorString == null || colorString.isEmpty) {
-      developer.log('ColorUtils.colorFromString: null veya boş string geldi');
+      AppLogger.log(_tag, 'colorFromString: null veya boş string geldi');
       return null;
     }
 
     try {
       // Giriş string'ini normalize et
       String normalizedColor = colorString.replaceAll('#', '').trim();
-      developer.log('ColorUtils.colorFromString: Giriş: "$colorString", Normalize: "$normalizedColor"');
+      AppLogger.log(_tag, 'colorFromString: Giriş: "$colorString", Normalize: "$normalizedColor"');
       
       if (normalizedColor.length > 6) {
         normalizedColor = normalizedColor.substring(0, 6);
-        developer.log('ColorUtils.colorFromString: String çok uzun, kısaltıldı: "$normalizedColor"');
+        AppLogger.log(_tag, 'colorFromString: String çok uzun, kısaltıldı: "$normalizedColor"');
       }
       
       if (normalizedColor.length < 6) {
         normalizedColor = normalizedColor.padRight(6, '0');
-        developer.log('ColorUtils.colorFromString: String çok kısa, uzatıldı: "$normalizedColor"');
+        AppLogger.log(_tag, 'colorFromString: String çok kısa, uzatıldı: "$normalizedColor"');
       }
 
       // String'i bileşenlerine ayır ve renk oluştur
@@ -40,11 +42,11 @@ class ColorUtils {
       
       final color = Color.fromRGBO(r, g, b, 1.0);
       
-      developer.log('ColorUtils.colorFromString: "$normalizedColor" => RGB(${color.r},${color.g},${color.b})');
+      AppLogger.logColorStringConversion(_tag, normalizedColor, color);
       
       return color;
     } catch (e) {
-      developer.log('ColorUtils.colorFromString: Hata oluştu: $e');
+      AppLogger.logError(_tag, 'colorFromString', e);
       return null;
     }
   }
@@ -52,13 +54,13 @@ class ColorUtils {
   /// Renk adına göre renk objesi döndürür
   static Color? colorFromName(String? colorName) {
     if (colorName == null || colorName.isEmpty) {
-      developer.log('ColorUtils.colorFromName: null veya boş string geldi');
+      AppLogger.log(_tag, 'colorFromName: null veya boş string geldi');
       return null;
     }
 
     // Renk adını standardize et (küçük harf, boşlukları kaldır)
     final standardName = colorName.toLowerCase().trim();
-    developer.log('ColorUtils.colorFromName: Aranan renk adı: "$standardName"');
+    AppLogger.log(_tag, 'colorFromName: Aranan renk adı: "$standardName"');
 
     // Temel renkler için map
     final Map<String, Color> namedColors = {
@@ -91,30 +93,65 @@ class ColorUtils {
 
     final foundColor = namedColors[standardName];
     if (foundColor != null) {
-      developer.log('ColorUtils.colorFromName: Renk bulundu - "$standardName" => RGB(${foundColor.r},${foundColor.g},${foundColor.b})');
+      AppLogger.logColor(_tag, 'colorFromName: Renk bulundu - "$standardName"', foundColor);
       return foundColor;
     }
 
-    developer.log('ColorUtils.colorFromName: Renk bulunamadı - "$standardName"');
+    AppLogger.log(_tag, 'colorFromName: Renk bulunamadı - "$standardName"');
     return null;
   }
+
+  /// String veya renk adından renk oluştur (varsa), yoksa varsayılan rengi döndür
+  static Color getColorOrDefault(dynamic colorInput, Color defaultColor) {
+    if (colorInput == null) {
+      return defaultColor;
+    }
+    
+    Color? result;
+    
+    if (colorInput is String) {
+      // Önce hex string olarak dene
+      result ??= colorFromString(colorInput);
+      
+      // Olmadıysa isim olarak dene
+      result ??= colorFromName(colorInput);
+    } else if (colorInput is Color) {
+      result = colorInput;
+    }
+    
+    return result ?? defaultColor;
+  }
   
-  /// Arka plan rengine göre okunabilir metin rengi döndürür
+  /// Arka plan rengine göre kontrast renk döndürür (koyu arka plana açık yazı, açık arka plana koyu yazı)
   static Color getContrastColor(Color? backgroundColor) {
     if (backgroundColor == null) {
-      developer.log('ColorUtils.getContrastColor: Arka plan rengi null, varsayılan olarak beyaz döndürülüyor');
+      AppLogger.log(_tag, 'getContrastColor: Arka plan rengi null, varsayılan olarak beyaz döndürülüyor');
       return Colors.white;
     }
-
-    // Parlaklık hesapla
-    final luminance = (0.299 * backgroundColor.r + 
-                         0.587 * backgroundColor.g + 
-                         0.114 * backgroundColor.b) / 255;
-
-    developer.log('ColorUtils.getContrastColor: Parlaklık: $luminance, RGB(${backgroundColor.r},${backgroundColor.g},${backgroundColor.b})');
     
-    final contrastColor = luminance > 0.5 ? Colors.black : Colors.white;
+    // Rengin parlaklığını hesapla (0-1 arası)
+    // Formül: (0.299*R + 0.587*G + 0.114*B) / 255
+    final double luminance = (0.299 * backgroundColor.r + 
+                             0.587 * backgroundColor.g + 
+                             0.114 * backgroundColor.b) / 255;
     
-    return contrastColor;
+    AppLogger.log(_tag, 'getContrastColor: Parlaklık: $luminance, RGB(${backgroundColor.r},${backgroundColor.g},${backgroundColor.b})');
+    
+    // Parlaklık 0.5'ten büyükse koyu, küçükse açık renk döndür
+    return luminance > 0.5 ? Colors.black : Colors.white;
+  }
+  
+  /// Renk geçerliliğini test et ve log oluştur
+  static bool validateColor(String tag, String colorString) {
+    final Color? color = colorFromString(colorString);
+    final bool isValid = color != null;
+    
+    if (isValid) {
+      AppLogger.logColorStringConversion(tag, colorString, color);
+    } else {
+      AppLogger.log(tag, 'Renk doğrulama başarısız: "$colorString"');
+    }
+    
+    return isValid;
   }
 }

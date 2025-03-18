@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:developer' as developer;
 import '../providers/shopping_list_provider.dart';
-import '../utils/color_utils.dart';
+import '../utils/app_logger.dart';
 import '../utils/icon_utils.dart';
 import 'base_list_dialog.dart';
 
@@ -20,26 +19,15 @@ class _AddListDialogState extends BaseListDialogState<AddListDialog> {
     // Yeni liste eklenirken varsayılan değerler kullanılır
     selectedColor = Colors.green;
     selectedIcon = Icons.list_alt;
-    developer.log('AddListDialog: initializeValues - Varsayılan değerler ayarlandı');
-    developer.log('AddListDialog: initializeValues - Varsayılan renk: RGB(${selectedColor.r},${selectedColor.g},${selectedColor.b})');
+    AppLogger.log(logTag, 'Varsayılan değerler ayarlandı');
+    AppLogger.logColor(logTag, 'Varsayılan renk', selectedColor);
   }
 
   @override
-  Future<void> handleSubmit() async {
+  Future<void> performOperation(String colorString) async {
+    AppLogger.logOperation(logTag, 'Liste ekleme işlemi', isStart: true);
+    
     final provider = Provider.of<ShoppingListProvider>(context, listen: false);
-    final colorString = ColorUtils.colorToString(selectedColor);
-    
-    developer.log('AddListDialog: handleSubmit - Seçilen renk bilgileri:');
-    developer.log('AddListDialog: handleSubmit - Renk: RGB(${selectedColor.r},${selectedColor.g},${selectedColor.b})');
-    developer.log('AddListDialog: handleSubmit - RRGGBB: $colorString');
-    
-    // Test amaçlı renk dönüşümünü tekrar kontrol edelim
-    final colorFromString = ColorUtils.colorFromString(colorString);
-    if (colorFromString != null) {
-      developer.log('AddListDialog: handleSubmit - Dönüşüm sonrası renk: RGB(${colorFromString.r},${colorFromString.g},${colorFromString.b})');
-    } else {
-      developer.log('AddListDialog: handleSubmit - HATA! Renk dönüşümü başarısız oldu: "$colorString"');
-    }
     
     // Yeni liste oluştur
     await provider.addList(
@@ -47,6 +35,8 @@ class _AddListDialogState extends BaseListDialogState<AddListDialog> {
       icon: IconUtils.iconToString(selectedIcon),
       color: colorString,
     );
+    
+    AppLogger.logOperation(logTag, 'Liste ekleme işlemi', isStart: false);
   }
 
   @override

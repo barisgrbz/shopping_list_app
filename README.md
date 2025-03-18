@@ -32,7 +32,18 @@ lib/
 ├── models/         # Veri modelleri
 ├── providers/      # State yönetimi
 ├── screens/        # Uygulama ekranları
+├── utils/          # Yardımcı işlevler ve araçlar
+│   ├── app_logger.dart      # Uygulama kayıt sistemi
+│   ├── color_utils.dart     # Renk işleme yardımcıları
+│   ├── icon_utils.dart      # İkon işleme yardımcıları
+│   ├── category_helper.dart # Kategori yardımcıları
+│   └── constants.dart       # Sabitler
 ├── widgets/        # Yeniden kullanılabilir bileşenler
+│   ├── add_list_dialog.dart    # Liste ekleme diyaloğu
+│   ├── base_list_dialog.dart   # Diyalog taban sınıfı
+│   ├── edit_list_dialog.dart   # Liste düzenleme diyaloğu
+│   ├── shopping_list_item.dart # Alışveriş listesi öğesi widget'ı
+│   └── add_item_dialog.dart    # Ürün ekleme diyaloğu
 └── main.dart       # Uygulama girişi
 ```
 
@@ -104,6 +115,7 @@ flutter build ios
 - [ ] Liste paylaşma
 - [ ] Bildirimler ve hatırlatıcılar
 - [ ] Sesli komutlarla ürün ekleme
+
 ## Güncellemeler (Changelog)
 Güncellemeleri görmek için [Changelog.md](CHANGELOG.md) dosyasına göz atabilirsiniz.
 

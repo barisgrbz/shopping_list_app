@@ -2,7 +2,27 @@
 
 Bu dosya, Alışveriş Listesi uygulamasının önemli değişikliklerini belgelemektedir.
 
-## [1.1.0] - 2024-07-XX
+## [1.1.1] - 2025-03-18
+
+### Eklenen
+- Kategori işlemleri ile ürünleri daha kolay yönetebilme
+- Akıllı arama özellikleri ile ürünleri tüm listelerde arma yapabilme
+- Çeşitli sıralama ölçütleri (alfabe, tarih, kategori,önem,özelleştirlmiş)
+
+### Değiştirilen
+- Kullanılmayan `../utils/color_utils.dart` importu `add_list_dialog.dart` dosyasından kaldırıldı
+- Deprecated API kullanımları güncellendi: 
+  - `color_utils.dart` dosyasında `backgroundColor.red`, `backgroundColor.green`, ve `backgroundColor.blue` -> `backgroundColor.r`, `backgroundColor.g`, ve `backgroundColor.b` olarak güncellendi
+  - `base_list_dialog.dart` dosyasında `selectedColor.value` ve `color.value` -> `selectedColor.hashCode` ve `color.hashCode` olarak güncellendi
+  - `withOpacity()` -> `withAlpha()` ile değiştirildi 
+- `color_utils.dart` dosyasında null-aware operatörler (`??=`) kullanılarak kod daha modern hale getirildi
+
+### Düzeltilen
+- Dart ve Flutter stil klavuzlarına uyum sağlandı
+- Kod kalitesi ve okunabilirliği artırıldı
+- Bellek ve performans verimliliği iyileştirildi
+
+## [1.1.0] - 2025-03-17
 
 ### Eklenen
 - Yeni liste oluşturma ve birden fazla liste yönetebilme özelliği

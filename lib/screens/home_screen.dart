@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:developer' as developer;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/shopping_list_provider.dart';
@@ -13,6 +12,7 @@ import '../models/shopping_item.dart';
 import '../utils/icon_utils.dart';
 import '../utils/color_utils.dart';
 import '../utils/constants.dart';
+import '../utils/app_logger.dart';
 import '../screens/search_screen.dart';
 
 // Sıralama seçenekleri için enum tanımlama
@@ -58,15 +58,16 @@ class _HomeScreenState extends State<HomeScreen> {
       
       // Map'i JSON'a dönüştür
       final Map<String, String> jsonMap = {};
+      
       _customSortOrders.forEach((key, value) {
         jsonMap[key] = jsonEncode(value);
       });
       
       // Dönüştürülen JSON'ı SharedPreferences'a kaydet
       await prefs.setString('customSortOrders', jsonEncode(jsonMap));
-      developer.log('Özelleştirilmiş sıralama kaydedildi: ${jsonEncode(jsonMap)}');
+      AppLogger.log('HomeScreen', 'Özelleştirilmiş sıralama kaydedildi: ${jsonEncode(jsonMap)}');
     } catch (e) {
-      developer.log('Özelleştirilmiş sıralama kaydedilirken hata oluştu: $e');
+      AppLogger.logError('HomeScreen', 'Özelleştirilmiş sıralama kaydedilirken hata oluştu', e);
     }
   }
   
@@ -74,20 +75,20 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadCustomSortOrders() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final String? jsonString = prefs.getString('customSortOrders');
+      final String? storedOrders = prefs.getString('customSortOrders');
       
-      if (jsonString != null && jsonString.isNotEmpty) {
-        final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+      if (storedOrders != null) {
+        final Map<String, dynamic> jsonMap = jsonDecode(storedOrders);
         
         jsonMap.forEach((key, value) {
-          final List<dynamic> itemList = jsonDecode(value);
-          _customSortOrders[key] = itemList.map((item) => item.toString()).toList();
+          final List<dynamic> orderList = jsonDecode(value);
+          _customSortOrders[key] = orderList.map((item) => item.toString()).toList();
         });
         
-        developer.log('Özelleştirilmiş sıralama yüklendi: $_customSortOrders');
+        AppLogger.log('HomeScreen', 'Özelleştirilmiş sıralama yüklendi: $_customSortOrders');
       }
     } catch (e) {
-      developer.log('Özelleştirilmiş sıralama yüklenirken hata oluştu: $e');
+      AppLogger.logError('HomeScreen', 'Özelleştirilmiş sıralama yüklenirken hata oluştu', e);
     }
   }
 
@@ -529,23 +530,23 @@ class _HomeScreenState extends State<HomeScreen> {
                         final isSelected = list.id == selectedListId;
                         
                         // Debug log ekleyerek renk değerini görelim
-                        developer.log('Drawer: Liste [${list.name}] renk değeri: "${list.color}"');
+                        AppLogger.log('HomeScreen', 'Drawer: Liste [${list.name}] renk değeri: "${list.color}"');
                         
                         final Color? listColorOrNull = list.color != null
-                          ? ColorUtils.colorFromString(list.color) 
+                          ? ColorUtils.colorFromString(list.color)
                           : null;
                           
                         if (list.color != null) {
                           if (listColorOrNull != null) {
                             // ignore: deprecated_member_use
-                            developer.log('Drawer: Renk dönüşümü başarılı [${list.name}]: "${list.color}" => RGB(${listColorOrNull.r},${listColorOrNull.g},${listColorOrNull.b})');
+                            AppLogger.logColorStringConversion('HomeScreen', list.color!, listColorOrNull);
                           } else {
-                            developer.log('Drawer: Renk dönüşümü başarısız [${list.name}] - input: "${list.color}"');
+                            AppLogger.log('HomeScreen', 'Drawer: Renk dönüşümü başarısız [${list.name}] - input: "${list.color}"');
                           }
                         }
                         
                         final Color listColor = listColorOrNull ?? Theme.of(context).colorScheme.primary;
-                        developer.log('Drawer: Kullanılan renk [${list.name}]: ${ColorUtils.colorToString(listColor)}, RGB(${listColor.r},${listColor.g},${listColor.b})');
+                        AppLogger.logColor('HomeScreen', 'Drawer: Kullanılan renk [${list.name}]', listColor);
 
                         return ListTile(
                           leading: CircleAvatar(

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
-import 'dart:developer' as developer;
 import '../models/shopping_item.dart';
 import '../models/shopping_list.dart';
 import '../utils/constants.dart';
+import '../utils/app_logger.dart';
 
 class ShoppingListProvider with ChangeNotifier {
   // Alışveriş listeleri
@@ -107,22 +107,41 @@ class ShoppingListProvider with ChangeNotifier {
 
   // Yeni liste ekleme
   Future<void> addList(String name, {String? icon, String? color}) async {
-    developer.log('ShoppingListProvider: Yeni liste ekleniyor - name: $name, icon: $icon, color: "$color"');
+    _logListOperation('Yeni liste ekleniyor', name: name, icon: icon, color: color);
     
     final newList = ShoppingList.create(name: name, icon: icon, color: color);
     
-    // Kayıt öncesi değerleri kontrol et
-    developer.log('ShoppingListProvider: Oluşturulan liste - id: ${newList.id}, name: ${newList.name}, icon: ${newList.icon}, color: "${newList.color}"');
+    _logListDetails('Oluşturulan liste', newList);
 
-    final box = await Hive.openBox<ShoppingList>(Constants.listsBoxName);
-    await box.put(newList.id, newList);
-
+    await _saveListToDatabase(newList);
     _lists.add(newList);
-
-    // Yeni liste oluşturulduktan sonra onu seç
-    _selectedListId = newList.id;
-
+    
+    // Eğer ilk eklenen listeyse, onu seçili hale getir
+    if (_lists.length == 1) {
+      _selectedListId = newList.id;
+    }
+    
     notifyListeners();
+  }
+  
+  /// Liste verilerini loglama
+  void _logListDetails(String prefix, ShoppingList list) {
+    AppLogger.log('ShoppingListProvider', '$prefix - id: ${list.id}, name: ${list.name}, icon: ${list.icon}, color: "${list.color}"');
+  }
+  
+  /// Liste işlem bilgilerini loglama
+  void _logListOperation(String operation, {String? id, String? name, String? icon, String? color}) {
+    if (id != null) {
+      AppLogger.log('ShoppingListProvider', '$operation - id: $id, name: $name, icon: $icon, color: "$color"');
+    } else {
+      AppLogger.log('ShoppingListProvider', '$operation - name: $name, icon: $icon, color: "$color"');
+    }
+  }
+  
+  /// Listeyi veritabanına kaydetme
+  Future<void> _saveListToDatabase(ShoppingList list) async {
+    final box = await Hive.openBox<ShoppingList>(Constants.listsBoxName);
+    await box.put(list.id, list);
   }
 
   // Liste silme
@@ -153,28 +172,26 @@ class ShoppingListProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Liste güncelleme
+  /// Liste güncelleme
   Future<void> updateList(
     String id, {
     String? name,
     String? icon,
     String? color,
   }) async {
-    developer.log('ShoppingListProvider: Liste güncelleniyor - id: $id, name: $name, icon: $icon, color: "$color"');
+    _logListOperation('Liste güncelleniyor', id: id, name: name, icon: icon, color: color);
     
     final index = _lists.indexWhere((list) => list.id == id);
     if (index != -1) {
       if (name != null) _lists[index].name = name;
       if (icon != null) _lists[index].icon = icon;
       if (color != null) {
-        developer.log('ShoppingListProvider: Eski renk: "${_lists[index].color}", Yeni renk: "$color"');
+        AppLogger.log('ShoppingListProvider', 'Eski renk: "${_lists[index].color}", Yeni renk: "$color"');
         _lists[index].color = color;
       }
 
-      final box = await Hive.openBox<ShoppingList>(Constants.listsBoxName);
-      await box.put(_lists[index].id, _lists[index]);
-      
-      developer.log('ShoppingListProvider: Güncelleme sonrası liste - id: ${_lists[index].id}, name: ${_lists[index].name}, icon: ${_lists[index].icon}, color: "${_lists[index].color}"');
+      await _saveListToDatabase(_lists[index]);
+      _logListDetails('Güncelleme sonrası liste', _lists[index]);
 
       notifyListeners();
     }

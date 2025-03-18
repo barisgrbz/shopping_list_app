@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:developer' as developer;
 import '../providers/shopping_list_provider.dart';
 import '../models/shopping_list.dart';
 import '../utils/color_utils.dart';
 import '../utils/icon_utils.dart';
+import '../utils/app_logger.dart';
 import 'base_list_dialog.dart';
 
 /// Mevcut bir alışveriş listesini düzenlemek için diyalog
@@ -28,33 +28,24 @@ class _EditListDialogState extends BaseListDialogState<EditListDialog> {
       final colorFromString = ColorUtils.colorFromString(widget.list.color!);
       if (colorFromString != null) {
         selectedColor = colorFromString;
-        developer.log('EditListDialog: initializeValues - Renk dönüşümü başarılı: "${widget.list.color}" => RGB(${selectedColor.r},${selectedColor.g},${selectedColor.b})');
+        AppLogger.logColorStringConversion(logTag, widget.list.color!, colorFromString);
       } else {
-        developer.log('EditListDialog: initializeValues - Renk dönüşümü başarısız: "${widget.list.color}"');
+        AppLogger.log(logTag, 'Renk dönüşümü başarısız: "${widget.list.color}"');
         selectedColor = Colors.green; // Varsayılan renk
       }
     } else {
-      developer.log('EditListDialog: initializeValues - Renk değeri yok');
+      AppLogger.log(logTag, 'Renk değeri yok');
       selectedColor = Colors.green; // Varsayılan renk
     }
     
-    developer.log('EditListDialog: initializeValues - Kullanılan renk: RGB(${selectedColor.r},${selectedColor.g},${selectedColor.b})');
+    AppLogger.logColor(logTag, 'Kullanılan renk', selectedColor);
   }
 
   @override
-  Future<void> handleSubmit() async {
+  Future<void> performOperation(String colorString) async {
+    AppLogger.logOperation(logTag, 'Liste güncelleme işlemi', isStart: true);
+    
     final provider = Provider.of<ShoppingListProvider>(context, listen: false);
-    final colorString = ColorUtils.colorToString(selectedColor);
-    
-    developer.log('EditListDialog: handleSubmit - Renk dönüşümü: RGB(${selectedColor.r},${selectedColor.g},${selectedColor.b}) => "$colorString"');
-    
-    // Test amaçlı olarak dönüşümün tutarlı olup olmadığını kontrol edelim
-    final testColor = ColorUtils.colorFromString(colorString);
-    if (testColor != null) {
-      developer.log('EditListDialog: handleSubmit - Dönüşüm testi başarılı: "$colorString" => RGB(${testColor.r},${testColor.g},${testColor.b})');
-    } else {
-      developer.log('EditListDialog: handleSubmit - Dönüşüm testi başarısız: "$colorString"');
-    }
     
     await provider.updateList(
       widget.list.id,
@@ -62,6 +53,8 @@ class _EditListDialogState extends BaseListDialogState<EditListDialog> {
       icon: IconUtils.iconToString(selectedIcon),
       color: colorString,
     );
+    
+    AppLogger.logOperation(logTag, 'Liste güncelleme işlemi', isStart: false);
   }
 
   @override

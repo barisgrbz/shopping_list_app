@@ -5,14 +5,19 @@ import 'models/shopping_item.dart';
 import 'models/shopping_list.dart';
 import 'providers/shopping_list_provider.dart';
 import 'screens/home_screen.dart';
+import 'utils/app_logger.dart';
 
 void main() async {
+  AppLogger.log('Main', 'Uygulama başlatılıyor');
+  
   // Hive'ı başlat
   await Hive.initFlutter();
+  AppLogger.log('Main', 'Hive başlatıldı');
 
   // Adapterleri kaydet
   Hive.registerAdapter(ShoppingItemAdapter());
   Hive.registerAdapter(ShoppingListAdapter());
+  AppLogger.log('Main', 'Hive adaptörleri kaydedildi');
 
   runApp(const MyApp());
 }
@@ -22,6 +27,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AppLogger.log('MyApp', 'UI yapılandırılıyor');
+    
     return ChangeNotifierProvider(
       create: (context) => ShoppingListProvider(),
       child: MaterialApp(
