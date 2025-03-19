@@ -2,6 +2,15 @@
 
 Bu dosya, Alışveriş Listesi uygulamasının önemli değişikliklerini belgelemektedir.
 
+## [1.1.3] - 2025-03-19
+
+### Düzeltilen
+- İkon rengi sorunu çözüldü - seçilen renkle uyumlu kontrast renk otomatik olarak belirleniyor
+- Renk dönüşüm işlemlerinde (`color.r.round()` yerine `color.red`) kullanılarak daha doğru renk dönüşümü sağlandı
+- `Color.fromRGBO()` yerine `Color.fromARGB()` kullanılarak daha tutarlı renk üretimi sağlandı
+- Null veya geçersiz renk değerleri için ek kontroller eklendi
+- Web build işlemi için base-href parametresi eklendi
+
 ## [1.1.2] - 2025-03-18
 
 ### Eklenen

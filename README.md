@@ -8,11 +8,14 @@ Modern ve kullanıcı dostu bir alışveriş listesi uygulaması. Flutter ile ge
 ## 🌐 Web Versiyonu
 Web versiyonuna [https://barisgrbz.github.io/shopping_list_app/](https://barisgrbz.github.io/shopping_list_app/) adresinden erişebilirsiniz.
 
+**Son Güncelleme (2025-03-19):** İkon renk sorunları düzeltildi, arka plan rengi seçimi iyileştirildi.
+
 ## ✨ Özellikler
 
 - ✅ Alışveriş öğeleri ekleme, düzenleme ve silme
 - 📋 Çoklu ürün ekleme - alt alta yazılan ürünleri otomatik olarak ayrı ayrı ekleme
 - 🔄 Öğeleri satın alındı olarak işaretleme
+- 🎨 Listeler için özelleştirilmiş renk ve ikonlar - otomatik kontrast hesaplaması
 - 🕒 Eklenme zamanı bilgisi ve "ne zaman eklendi" gösterimi
 - 👆 Öğeleri kaydırarak (swipe to dismiss) silme özelliği
 - 🔍 Yaygın kullanılan ürünleri hızlıca eklemek için öneriler
