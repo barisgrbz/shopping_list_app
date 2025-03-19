@@ -60,6 +60,12 @@ abstract class BaseListDialogState<T extends BaseListDialog> extends State<T> {
 
   /// Seçilen rengin string temsilini hazırla ve doğrula
   String prepareColor(Color color) {
+    // Renk null kontrolü (gereksiz ama güvenlik için)
+    if (color == Colors.transparent) {
+      AppLogger.log(logTag, 'Renk şeffaf, varsayılan renk kullanılacak');
+      color = Colors.green; // Varsayılan renk
+    }
+    
     final colorString = ColorUtils.colorToString(color);
     AppLogger.log(logTag, 'Renk hazırlanıyor: ${ColorUtils.colorToString(color)}');
     
@@ -186,7 +192,9 @@ abstract class BaseListDialogState<T extends BaseListDialog> extends State<T> {
                 ),
                 child: Icon(
                   icon,
-                  color: isSelected ? Colors.white : Colors.grey.shade700,
+                  color: isSelected 
+                    ? ColorUtils.getContrastColor(selectedColor) // Otomatik kontrast renk kullanılıyor
+                    : Colors.grey.shade700,
                   size: 24,
                 ),
               ),
