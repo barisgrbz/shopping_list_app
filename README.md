@@ -3,7 +3,8 @@
 Modern ve kullanıcı dostu bir alışveriş listesi uygulaması. Flutter ile geliştirilmiş, yerel veritabanı kullanarak alışveriş listenizi istediğiniz yerde yönetmenize olanak tanır.
 
 ![Uygulama Önizlemesi](screenshots/app_preview.png)
-
+![Uygulama Önizlemesi](screenshots/app_preview2.png)
+![Uygulama Önizlemesi](screenshots/app_preview3.png)
 ## 🌐 Web Versiyonu
 Web versiyonuna [https://barisgrbz.github.io/shopping_list_app/](https://barisgrbz.github.io/shopping_list_app/) adresinden erişebilirsiniz.
 
